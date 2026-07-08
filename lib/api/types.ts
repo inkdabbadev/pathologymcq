@@ -71,3 +71,16 @@ export interface Stat {
   value: number;
   suffix?: string;
 }
+
+export interface PracticeTopic {
+  slug: string;
+  label: string;
+}
+
+export interface PracticeQuestion {
+  question: string;
+  /** Exactly 4 answer choices. */
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
