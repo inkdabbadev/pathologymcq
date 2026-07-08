@@ -1,26 +1,170 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens — Histological (H&E stain) palette.
+ * Source of truth for color, type, radius, shadow, and spacing across the app.
+ * Tailwind v4 auto-generates utilities from the --color-*, --font-*, --radius-*,
+ * --shadow-*, and --spacing-* keys inside @theme (e.g. --color-plum-900 -> bg-plum-900).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --plum-900: #2d0f4f;
+  --hema-700: #5c2d8c;
+  --royal-500: #8b4fbc;
+  --iris-300: #c7a8db;
+  --mist-100: #f2ebf7;
+  --twilight-900: #4a3868;
+  --wash-100: #f4f0fa;
+  --lilac-500: #cda3cd;
+  --blush-300: #e7cde7;
+  --rose-700: #c0567c;
+  --eosin-500: #e48baa;
+  --cyto-100: #fceef2;
+
+  --ink-900: #0a0a0a;
+  --slate-700: #4a4a4a;
+  --smoke-400: #a8a8a8;
+  --canvas: #f5f5f5;
+  --paper: #ffffff;
+
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+  /* Navbar's own resting box height (pt-3 + h-18) — used to bleed hero
+     backgrounds up behind the sticky, see components/marketing/hero.tsx. */
+  --nav-offset: 5.25rem;
+
+  --shadow-soft-color: 45, 15, 79;
+  --shadow-glow-color: 139, 79, 188;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-plum-900: var(--plum-900);
+  --color-hema-700: var(--hema-700);
+  --color-royal-500: var(--royal-500);
+  --color-iris-300: var(--iris-300);
+  --color-mist-100: var(--mist-100);
+  --color-twilight-900: var(--twilight-900);
+  --color-wash-100: var(--wash-100);
+  --color-lilac-500: var(--lilac-500);
+  --color-blush-300: var(--blush-300);
+  --color-rose-700: var(--rose-700);
+  --color-eosin-500: var(--eosin-500);
+  --color-cyto-100: var(--cyto-100);
+
+  --color-ink-900: var(--ink-900);
+  --color-slate-700: var(--slate-700);
+  --color-smoke-400: var(--smoke-400);
+  --color-canvas: var(--canvas);
+  --color-paper: var(--paper);
+
+  --color-background: var(--paper);
+  --color-foreground: var(--ink-900);
+
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii: 16-24px surface radii per design system */
+  --radius-panel: 1rem; /* 16px */
+  --radius-card: 1.25rem; /* 20px */
+  --radius-hero: 1.5rem; /* 24px */
+
+  /* Layered shadows */
+  --shadow-soft: 0 12px 34px rgba(var(--shadow-soft-color), 0.1);
+  --shadow-lifted: 0 24px 48px rgba(var(--shadow-soft-color), 0.16);
+  --shadow-glow: 0 20px 45px rgba(var(--shadow-glow-color), 0.25);
+
+  /*
+   * Spacing scale: 4 / 8 / 12 / 16 / 24 / 40 / 64 / 96 / 140 (px), reached via
+   * Tailwind's default numeric spacing scale (base --spacing: 0.25rem) at
+   * indices 1/2/3/4/6/10/16/24/35 — e.g. py-16 = 64px, py-24 = 96px.
+   * Deliberately NOT redeclared as named --spacing-{xs..5xl} keys here: Tailwind
+   * resolves sizing utilities (w-*, max-w-*, h-*, etc.) against named --spacing-*
+   * keys before their own dedicated scale, so doing that silently hijacks
+   * max-w-lg/xl/2xl/4xl (and friends) across the whole app.
+   */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  /* Offsets in-page anchors (e.g. /#faculty, /#testimonials) so their target
+     section isn't hidden underneath the sticky navbar. */
+  scroll-padding-top: var(--nav-offset);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Radix Accordion content height animation (components/ui/accordion.tsx) */
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* Radix DropdownMenu open/close (components/ui/dropdown-menu.tsx) */
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes dropdown-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+/* Ambient background: faint dot-grid + soft plum/pink radial glow, used on marketing sections */
+.bg-ambient {
+  background-color: var(--color-canvas);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(139, 79, 188, 0.14), transparent 45%),
+    radial-gradient(circle at 85% 30%, rgba(228, 139, 170, 0.12), transparent 40%),
+    radial-gradient(circle, rgba(45, 15, 79, 0.08) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    22px 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
