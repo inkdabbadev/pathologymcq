@@ -40,9 +40,9 @@ export function Hero() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/courses">
+              <Link href="/shop">
                 <Microscope className="h-4 w-4" />
-                Browse courses
+                Browse shop
               </Link>
             </Button>
           </div>
