@@ -8,33 +8,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export interface NavDropdownItem {
-  category: string;
   label: string;
-  children?: NavDropdownItem[];
+  href: string;
 }
 
 export function NavDropdown({
   label,
   active,
-  browseHref,
-  browseLabel,
   items,
-  getItemHref = (item) => `/courses?exam=${item.category}`,
 }: {
   label: string;
   active: boolean;
-  browseHref: string;
-  browseLabel: string;
   items: NavDropdownItem[];
-  /** Builds the href for a leaf item; defaults to the course-catalog filter. */
-  getItemHref?: (item: NavDropdownItem) => string;
 }) {
   return (
     <DropdownMenu>
@@ -51,30 +40,11 @@ export function NavDropdown({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem asChild>
-          <Link href={browseHref} className="font-semibold text-plum-900">
-            {browseLabel}
-          </Link>
-        </DropdownMenuItem>
-        <div className="my-1 h-px bg-iris-300/30" />
-        {items.map((item) =>
-          item.children?.length ? (
-            <DropdownMenuSub key={item.category}>
-              <DropdownMenuSubTrigger>{item.label}</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                {item.children.map((child) => (
-                  <DropdownMenuItem key={child.category} asChild>
-                    <Link href={getItemHref(child)}>{child.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          ) : (
-            <DropdownMenuItem key={item.category} asChild>
-              <Link href={getItemHref(item)}>{item.label}</Link>
-            </DropdownMenuItem>
-          )
-        )}
+        {items.map((item) => (
+          <DropdownMenuItem key={item.href} asChild>
+            <Link href={item.href}>{item.label}</Link>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

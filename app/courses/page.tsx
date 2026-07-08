@@ -14,7 +14,10 @@ import { MOCK_TESTS_CATEGORY, MOCK_TEST_TYPES } from "@/lib/mock/mock-test-types
 // Comprehensive Course / Dataset Discussion-Macro) aren't shown as their own
 // pill here to keep this row scannable; they're still reachable via the nav's
 // Courses submenu and resolve correctly below via ALL_FILTERS_WITH_CHILDREN.
-const ALL_FILTERS = [...EXAM_PATHWAYS, MOCK_TESTS_CATEGORY, ...MOCK_TEST_TYPES];
+// The generic "Mock Tests" umbrella category is likewise omitted from the pill
+// row (mock tests have their own dedicated nav dropdown and /mock-tests page)
+// but stays in ALL_FILTERS_WITH_CHILDREN so ?exam=mock-tests links still resolve.
+const ALL_FILTERS = [...EXAM_PATHWAYS, ...MOCK_TEST_TYPES];
 const ALL_FILTERS_WITH_CHILDREN = [
   ...EXAM_PATHWAYS.flatMap((pathway) => [pathway, ...(pathway.children ?? [])]),
   MOCK_TESTS_CATEGORY,

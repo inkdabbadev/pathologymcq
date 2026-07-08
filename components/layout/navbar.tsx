@@ -5,13 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, ShoppingBag, X } from "lucide-react";
+import { ChevronDown, Menu, ShoppingBag, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { NavDropdown } from "@/components/layout/nav-dropdown";
-import { EXAM_PATHWAYS } from "@/lib/mock/exam-pathways";
-import { MOCK_TEST_TYPES } from "@/lib/mock/mock-test-types";
+import { CartDrawer } from "@/components/layout/cart-drawer";
+
+const SHOP_ITEMS = [
+  { href: "/mock-tests", label: "Mock" },
+  { href: "/courses", label: "Courses" },
+  { href: "/shop/hard-copy-books", label: "Hard Copy Books" },
+  { href: "/shop/bundles", label: "Bundles" },
+];
 
 const NAV_LINKS = [
   { href: "/practice", label: "Practice Questions" },
@@ -23,6 +29,8 @@ export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [cartOpen, setCartOpen] = React.useState(false);
+  const [shopMobileOpen, setShopMobileOpen] = React.useState(false);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -33,10 +41,8 @@ export function Navbar() {
 
   // Kept coarse (pathname-only, no useSearchParams) so the shared Navbar never
   // forces statically-generated routes like /courses/[slug] into dynamic
-  // rendering just for a cosmetic nav highlight — the /courses page's own
-  // filter pills already show which exam/mock-test filter is selected.
-  const coursesActive = pathname?.startsWith("/courses");
-  const mockTestsActive = pathname?.startsWith("/mock-tests");
+  // rendering just for a cosmetic nav highlight.
+  const shopActive = SHOP_ITEMS.some((item) => pathname?.startsWith(item.href));
 
   return (
     <header className="sticky top-0 z-50 flex justify-center px-[var(--gutter)] pt-3">
@@ -54,22 +60,7 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-1 xl:flex">
-          <NavDropdown
-            label="Courses"
-            active={!!coursesActive}
-            browseHref="/courses"
-            browseLabel="Browse all courses"
-            items={EXAM_PATHWAYS}
-          />
-
-          <NavDropdown
-            label="Mock Tests"
-            active={!!mockTestsActive}
-            browseHref="/mock-tests"
-            browseLabel="Browse all mock tests"
-            items={MOCK_TEST_TYPES}
-            getItemHref={(item) => `/mock-tests#${item.category}`}
-          />
+          <NavDropdown label="Shop" active={shopActive} items={SHOP_ITEMS} />
 
           {NAV_LINKS.map((link) => {
             const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
@@ -99,6 +90,7 @@ export function Navbar() {
           <button
             type="button"
             aria-label="Cart"
+            onClick={() => setCartOpen(true)}
             className="relative hidden h-10 w-10 items-center justify-center rounded-full text-plum-900 transition-colors hover:bg-mist-100 sm:inline-flex"
           >
             <ShoppingBag className="h-5 w-5" />
@@ -106,6 +98,7 @@ export function Navbar() {
               0
             </span>
           </button>
+          <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
 
           <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
             <Link href="/login">Log in</Link>
@@ -159,60 +152,42 @@ export function Navbar() {
                       </div>
 
                       <nav className="mt-8 flex flex-col gap-1">
-                        <p className="px-4 text-xs font-semibold uppercase tracking-wide text-smoke-400">
-                          Courses
-                        </p>
-                        <Link
-                          href="/courses"
-                          onClick={() => setMobileOpen(false)}
-                          className="rounded-2xl px-4 py-3 text-base font-medium text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
+                        <button
+                          type="button"
+                          onClick={() => setShopMobileOpen((open) => !open)}
+                          aria-expanded={shopMobileOpen}
+                          className="flex items-center justify-between rounded-2xl px-4 py-3 text-base font-medium text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
                         >
-                          Browse all courses
-                        </Link>
-                        {EXAM_PATHWAYS.map((pathway) => (
-                          <React.Fragment key={pathway.category}>
-                            <Link
-                              href={`/courses?exam=${pathway.category}`}
-                              onClick={() => setMobileOpen(false)}
-                              className="rounded-2xl px-4 py-3 pl-8 text-sm text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
+                          Shop
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 transition-transform duration-200",
+                              shopMobileOpen && "rotate-180"
+                            )}
+                          />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {shopMobileOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex flex-col overflow-hidden"
                             >
-                              {pathway.label}
-                            </Link>
-                            {pathway.children?.map((child) => (
-                              <Link
-                                key={child.category}
-                                href={`/courses?exam=${child.category}`}
-                                onClick={() => setMobileOpen(false)}
-                                className="rounded-2xl px-4 py-3 pl-12 text-xs text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
-                              >
-                                {child.label}
-                              </Link>
-                            ))}
-                          </React.Fragment>
-                        ))}
-
-                        <div className="my-2 h-px bg-iris-300/30" />
-
-                        <p className="px-4 text-xs font-semibold uppercase tracking-wide text-smoke-400">
-                          Mock Tests
-                        </p>
-                        <Link
-                          href="/mock-tests"
-                          onClick={() => setMobileOpen(false)}
-                          className="rounded-2xl px-4 py-3 text-base font-medium text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
-                        >
-                          Browse all mock tests
-                        </Link>
-                        {MOCK_TEST_TYPES.map((type) => (
-                          <Link
-                            key={type.category}
-                            href={`/mock-tests#${type.category}`}
-                            onClick={() => setMobileOpen(false)}
-                            className="rounded-2xl px-4 py-3 pl-8 text-sm text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
-                          >
-                            {type.label}
-                          </Link>
-                        ))}
+                              {SHOP_ITEMS.map((item) => (
+                                <Link
+                                  key={item.href}
+                                  href={item.href}
+                                  onClick={() => setMobileOpen(false)}
+                                  className="rounded-2xl px-4 py-3 pl-8 text-sm text-slate-700 transition-colors hover:bg-mist-100 hover:text-plum-900"
+                                >
+                                  {item.label}
+                                </Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
                         <div className="my-2 h-px bg-iris-300/30" />
 

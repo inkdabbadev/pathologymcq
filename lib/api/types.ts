@@ -42,9 +42,12 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
+  description: string;
   imageUrl: string;
   priceCents: number;
   currency: string;
+  /** What's included — used by bundles; omitted for standalone products like hard copy books. */
+  includes?: string[];
 }
 
 export interface Post {
