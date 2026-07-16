@@ -28,8 +28,6 @@ export interface Course {
   imageUrl: string;
   priceCents: number;
   currency: string;
-  rating: number;
-  reviewCount: number;
   faculty: FacultyMember;
   lessonCount: number;
   whoFor: string[];

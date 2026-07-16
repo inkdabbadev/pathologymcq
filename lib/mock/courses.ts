@@ -20,8 +20,6 @@ export const MOCK_COURSES: Course[] = [
     imageUrl: THUMBS[0],
     priceCents: 499900,
     currency: "INR",
-    rating: 4.9,
-    reviewCount: 312,
     faculty: MOCK_FACULTY[1],
     lessonCount: 86,
     whoFor: [
@@ -79,8 +77,6 @@ export const MOCK_COURSES: Course[] = [
     imageUrl: THUMBS[1],
     priceCents: 449900,
     currency: "INR",
-    rating: 4.8,
-    reviewCount: 198,
     faculty: MOCK_FACULTY[0],
     lessonCount: 64,
     whoFor: [
@@ -130,8 +126,6 @@ export const MOCK_COURSES: Course[] = [
     imageUrl: THUMBS[2],
     priceCents: 399900,
     currency: "INR",
-    rating: 4.9,
-    reviewCount: 271,
     faculty: MOCK_FACULTY[3],
     lessonCount: 58,
     whoFor: [
@@ -181,8 +175,6 @@ export const MOCK_COURSES: Course[] = [
     imageUrl: THUMBS[3],
     priceCents: 429900,
     currency: "INR",
-    rating: 4.7,
-    reviewCount: 142,
     faculty: MOCK_FACULTY[2],
     lessonCount: 45,
     whoFor: [
@@ -224,8 +216,6 @@ export const MOCK_COURSES: Course[] = [
     imageUrl: THUMBS[0],
     priceCents: 469900,
     currency: "INR",
-    rating: 4.8,
-    reviewCount: 87,
     faculty: MOCK_FACULTY[1],
     lessonCount: 38,
     whoFor: [
@@ -266,8 +256,6 @@ export const MOCK_COURSES: Course[] = [
     imageUrl: THUMBS[1],
     priceCents: 489900,
     currency: "INR",
-    rating: 4.9,
-    reviewCount: 165,
     faculty: MOCK_FACULTY[0],
     lessonCount: 52,
     whoFor: [

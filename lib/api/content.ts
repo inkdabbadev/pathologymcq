@@ -24,8 +24,6 @@ const FEATURED_COURSES_QUERY = /* GraphQL */ `
         imageUrl
         priceCents
         currency
-        rating
-        reviewCount
         lessonCount
         faculty {
           id
@@ -112,8 +110,6 @@ const COURSE_BY_SLUG_QUERY = /* GraphQL */ `
       imageUrl
       priceCents
       currency
-      rating
-      reviewCount
       lessonCount
       whoFor
       whatYouGet

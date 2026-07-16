@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
@@ -39,12 +38,7 @@ export function CourseCard({ course }: { course: Course }) {
           <span>{course.faculty.name}</span>
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-center gap-1 text-sm font-medium text-ink-900">
-            <Star className="h-4 w-4 fill-eosin-500 text-eosin-500" />
-            {course.rating.toFixed(1)}
-            <span className="text-smoke-400">({course.reviewCount})</span>
-          </div>
+        <div className="mt-auto flex items-center justify-end pt-2">
           <span className="font-display text-lg font-bold text-plum-900">
             {formatPrice(course.priceCents, course.currency)}
           </span>

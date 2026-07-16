@@ -10,6 +10,7 @@ import { Menu, ShoppingBag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/layout/cart-drawer";
+import { useAuthSession, useLogout } from "@/lib/auth/use-auth";
 
 const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
@@ -24,6 +25,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [cartOpen, setCartOpen] = React.useState(false);
+  const { data: user } = useAuthSession();
+  const logoutMutation = useLogout();
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -86,12 +89,30 @@ export function Navbar() {
           </button>
           <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
 
-          <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link href="/register">Get started</Link>
-          </Button>
+          {user ? (
+            <div className="hidden items-center gap-2 sm:flex">
+              <span className="px-2 text-sm font-medium text-plum-900">
+                {user.name || user.email}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+              >
+                Log out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+                <Link href="/login">Log in</Link>
+              </Button>
+              <Button asChild size="sm" className="hidden sm:inline-flex">
+                <Link href="/register">Get started</Link>
+              </Button>
+            </>
+          )}
 
           <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
             <Dialog.Trigger asChild>
@@ -151,16 +172,36 @@ export function Navbar() {
                       </nav>
 
                       <div className="mt-auto flex flex-col gap-3 pt-8">
-                        <Button asChild variant="outline">
-                          <Link href="/login" onClick={() => setMobileOpen(false)}>
-                            Log in
-                          </Link>
-                        </Button>
-                        <Button asChild>
-                          <Link href="/register" onClick={() => setMobileOpen(false)}>
-                            Get started
-                          </Link>
-                        </Button>
+                        {user ? (
+                          <>
+                            <p className="px-1 text-sm font-medium text-plum-900">
+                              {user.name || user.email}
+                            </p>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                logoutMutation.mutate();
+                                setMobileOpen(false);
+                              }}
+                              disabled={logoutMutation.isPending}
+                            >
+                              Log out
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button asChild variant="outline">
+                              <Link href="/login" onClick={() => setMobileOpen(false)}>
+                                Log in
+                              </Link>
+                            </Button>
+                            <Button asChild>
+                              <Link href="/register" onClick={() => setMobileOpen(false)}>
+                                Get started
+                              </Link>
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   </Dialog.Content>

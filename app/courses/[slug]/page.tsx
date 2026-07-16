@@ -59,11 +59,6 @@ export default async function CoursePage({
       priceCurrency: course.currency,
       availability: "https://schema.org/InStock",
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: course.rating,
-      reviewCount: course.reviewCount,
-    },
   };
 
   const faqSchema = {

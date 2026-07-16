@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,11 +38,6 @@ export function CourseHero({ course }: { course: Course }) {
                 <p className="font-semibold text-plum-900">{course.faculty.name}</p>
                 <p className="text-xs text-smoke-400">{course.faculty.title}</p>
               </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm font-medium text-ink-900">
-              <Star className="h-4 w-4 fill-eosin-500 text-eosin-500" />
-              {course.rating.toFixed(1)}
-              <span className="text-smoke-400">({course.reviewCount} reviews)</span>
             </div>
             <span className="text-sm text-smoke-400">{course.lessonCount} lessons</span>
           </div>
