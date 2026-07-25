@@ -15,6 +15,7 @@ import { useAuthSession, useLogout } from "@/lib/auth/use-auth";
 const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
   { href: "/courses", label: "Courses" },
+  { href: "/category", label: "Blogs" },
   { href: "/practice", label: "Practice Questions" },
   { href: "/about", label: "About / Faculty" },
   { href: "/faq", label: "FAQ" },
