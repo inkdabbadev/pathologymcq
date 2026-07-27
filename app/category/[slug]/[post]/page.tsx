@@ -47,24 +47,26 @@ export default async function BlogPostPage({
   const [savedBlocks, isAdmin] = await Promise.all([getPageBlocks(pageKey), isAdminSession()]);
 
   return (
-    <Section>
-      <Container>
+    <Section ambient className="py-10 md:py-14">
+      <Container className="max-w-[1180px]">
         <Link
           href={`/category/${slug}`}
-          className="inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-plum-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 transition-colors hover:text-plum-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to {category.label}
         </Link>
-      </Container>
 
-      <div className="mt-10">
-        <PageBlockEditor
-          slug={pageKey}
-          initialBlocks={savedBlocks ?? defaultBlocks(post.title)}
-          isAdmin={isAdmin}
-        />
-      </div>
+        <article className="relative mt-6 overflow-hidden rounded-hero border border-iris-300/30 bg-paper shadow-lifted">
+          <div className="px-6 py-10 sm:px-10 md:px-14 md:py-14">
+            <PageBlockEditor
+              slug={pageKey}
+              initialBlocks={savedBlocks ?? defaultBlocks(post.title)}
+              isAdmin={isAdmin}
+            />
+          </div>
+        </article>
+      </Container>
     </Section>
   );
 }

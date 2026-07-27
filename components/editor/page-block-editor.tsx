@@ -8,8 +8,10 @@ import {
   SPLIT_SIDE_TYPES,
   emptySplitSide,
   newBlock,
+  newQuizQuestion,
   type Block,
   type BlockType,
+  type QuizQuestion,
   type SplitSide,
   type SplitSideType,
   type TextAlign,
@@ -164,7 +166,7 @@ export function PageBlockEditor({
               key={block.id}
               className={cn(
                 "group relative rounded-md",
-                indentLevels[i] > 0 && "border-l-2 border-[#e2e6ee] pl-6",
+                indentLevels[i] > 0 && "border-l-2 border-iris-300/40 pl-6",
                 draggingIndex === i && "opacity-40",
                 dragOverIndex === i &&
                   draggingIndex !== null &&
@@ -195,7 +197,7 @@ export function PageBlockEditor({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") setEditingId(block.id);
                   }}
-                  className="cursor-text rounded-md transition-colors hover:bg-[#f7f9fc]"
+                  className="cursor-text rounded-md transition-colors hover:bg-mist-100"
                 >
                   <BlockReadOnly block={block} />
                 </div>
@@ -315,33 +317,169 @@ function BlockReadOnly({ block }: { block: Block }) {
   const { type, text, url, align } = block;
 
   if (type === "heading")
-    return <h1 className={cn("my-3 text-[32px] font-bold", alignClass(align))}>{text}</h1>;
+    return (
+      <h1
+        className={cn(
+          "my-4 font-display text-[32px] font-bold text-plum-900",
+          alignClass(align)
+        )}
+      >
+        {text}
+      </h1>
+    );
   if (type === "subheading")
     return (
-      <h2 className={cn("my-2.5 text-[22px] font-semibold text-[#333]", alignClass(align))}>
+      <h2
+        className={cn(
+          "my-3 font-display text-[22px] font-semibold text-hema-700",
+          alignClass(align)
+        )}
+      >
         {text}
       </h2>
     );
   if (type === "body")
-    return <p className={cn("text-base leading-[1.6] text-[#333]", alignClass(align))}>{text}</p>;
+    return (
+      <p className={cn("my-1 text-base leading-[1.75] text-slate-700", alignClass(align))}>
+        {text}
+      </p>
+    );
   if (type === "image")
     return text ? (
-      <img className="mx-auto my-2 block max-w-full rounded-lg" src={text} alt={url || ""} />
+      <img
+        className="mx-auto my-4 block max-w-full rounded-card border border-iris-300/40 shadow-soft"
+        src={text}
+        alt={url || ""}
+      />
     ) : null;
   if (type === "split")
     return (
-      <div className="my-3 flex flex-col items-start gap-5 sm:flex-row">
+      <div className="my-4 flex flex-col items-start gap-6 sm:flex-row sm:divide-x sm:divide-iris-300/30">
         <SplitSideView side={block.left} />
         <SplitSideView side={block.right} />
       </div>
     );
   if (type === "link")
     return url ? (
-      <a className="text-[#2563eb]" href={url} target="_blank" rel="noreferrer">
+      <a
+        className="font-medium text-hema-700 underline decoration-iris-300 decoration-2 underline-offset-2 transition-colors hover:text-plum-900"
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+      >
         {text || url}
       </a>
     ) : null;
+  if (type === "quiz") return <QuizBlockView questions={block.questions ?? []} />;
   return null;
+}
+
+// ── Interactive MCQ quiz (public + admin, when not being authored) ──
+function QuizBlockView({ questions }: { questions: QuizQuestion[] }) {
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const answered = questions.filter((q) => answers[q.id] !== undefined).length;
+  const score = questions.reduce((n, q) => (answers[q.id] === q.correctIndex ? n + 1 : n), 0);
+
+  if (questions.length === 0 || questions.every((q) => !q.question.trim())) return null;
+
+  return (
+    <div
+      className="my-6 rounded-card border border-iris-300/40 bg-mist-100/60 p-5 sm:p-7"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3 className="mb-4 font-display text-lg font-semibold text-plum-900">Test your knowledge</h3>
+
+      <div className="flex flex-col gap-6">
+        {questions.map((q, qi) => {
+          const selected = answers[q.id];
+          const isCorrect = submitted && selected === q.correctIndex;
+          const isWrong = submitted && selected !== undefined && selected !== q.correctIndex;
+
+          return (
+            <div key={q.id}>
+              <p className="mb-2.5 font-medium text-slate-700">
+                {qi + 1}. {q.question}
+              </p>
+              <div className="flex flex-col gap-2">
+                {q.options.map((opt, oi) => {
+                  const isSelected = selected === oi;
+                  const showAsCorrect = submitted && oi === q.correctIndex;
+                  const showAsWrongPick = submitted && isSelected && oi !== q.correctIndex;
+                  return (
+                    <label
+                      key={oi}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3.5 py-2.5 text-sm transition-colors",
+                        "border-iris-300/50 bg-paper",
+                        isSelected && !submitted && "border-hema-700 bg-wash-100",
+                        showAsCorrect && "border-emerald-600 bg-emerald-50",
+                        showAsWrongPick && "border-rose-700 bg-cyto-100",
+                        submitted && "cursor-default"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name={q.id}
+                        className="accent-hema-700"
+                        disabled={submitted}
+                        checked={isSelected ?? false}
+                        onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: oi }))}
+                      />
+                      <span className="text-slate-700">{opt}</span>
+                      {showAsCorrect && <span className="ml-auto text-emerald-700">✓</span>}
+                      {showAsWrongPick && <span className="ml-auto text-rose-700">✕</span>}
+                    </label>
+                  );
+                })}
+              </div>
+              {isWrong && (
+                <p className="mt-1.5 text-xs text-rose-700">
+                  Correct answer: {q.options[q.correctIndex]}
+                </p>
+              )}
+              {isCorrect && <p className="mt-1.5 text-xs text-emerald-700">Correct!</p>}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 flex items-center gap-4">
+        {!submitted ? (
+          <button
+            type="button"
+            disabled={answered < questions.length}
+            onClick={() => setSubmitted(true)}
+            className="cursor-pointer rounded-full bg-hema-700 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-plum-900 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Submit answers
+          </button>
+        ) : (
+          <>
+            <span className="rounded-full bg-plum-900 px-4 py-2 text-sm font-semibold text-white">
+              Score: {score}/{questions.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setAnswers({});
+                setSubmitted(false);
+              }}
+              className="cursor-pointer text-sm font-medium text-hema-700 underline underline-offset-2 hover:text-plum-900"
+            >
+              Retake quiz
+            </button>
+          </>
+        )}
+        {!submitted && answered < questions.length && (
+          <span className="text-xs text-slate-700/70">
+            Answer all {questions.length} question{questions.length === 1 ? "" : "s"} to submit
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ── Editable render of one block (only the block currently focused) ──
@@ -355,6 +493,13 @@ function BlockEdit({
   const { type, text, url } = block;
 
   if (type === "image") return <ImageBlockEdit text={text} url={url} onChange={onChange} />;
+  if (type === "quiz")
+    return (
+      <QuizBlockEdit
+        questions={block.questions ?? []}
+        onChange={(questions) => onChange({ questions })}
+      />
+    );
   if (type === "split")
     return (
       <div className="my-3 flex flex-col items-start gap-5 sm:flex-row">
@@ -410,6 +555,110 @@ function BlockEdit({
         rows={type === "body" ? 3 : 1}
         onChange={(e) => onChange({ text: e.target.value })}
       />
+    </div>
+  );
+}
+
+// ── Admin authoring UI for an MCQ quiz block ────────────────────
+function QuizBlockEdit({
+  questions,
+  onChange,
+}: {
+  questions: QuizQuestion[];
+  onChange: (questions: QuizQuestion[]) => void;
+}) {
+  const updateQuestion = (id: string, patch: Partial<QuizQuestion>) => {
+    onChange(questions.map((q) => (q.id === id ? { ...q, ...patch } : q)));
+  };
+  const removeQuestion = (id: string) => {
+    onChange(questions.filter((q) => q.id !== id));
+  };
+  const addQuestion = () => {
+    onChange([...questions, newQuizQuestion()]);
+  };
+
+  const addOption = (q: QuizQuestion) => {
+    updateQuestion(q.id, { options: [...q.options, ""] });
+  };
+  const removeOption = (q: QuizQuestion, oi: number) => {
+    const options = q.options.filter((_, i) => i !== oi);
+    const correctIndex = q.correctIndex === oi ? 0 : q.correctIndex > oi ? q.correctIndex - 1 : q.correctIndex;
+    updateQuestion(q.id, { options, correctIndex });
+  };
+  const updateOption = (q: QuizQuestion, oi: number, value: string) => {
+    updateQuestion(q.id, { options: q.options.map((o, i) => (i === oi ? value : o)) });
+  };
+
+  return (
+    <div className="flex flex-col gap-4 rounded-card border border-[#4f7cff] bg-[#fbfcff] p-4">
+      <span className="text-xs font-medium uppercase tracking-wide text-[#64748b]">MCQ Quiz</span>
+
+      {questions.map((q, qi) => (
+        <div key={q.id} className="flex flex-col gap-2 rounded-lg border border-[#dfe3ea] bg-white p-3">
+          <div className="flex items-start gap-2">
+            <textarea
+              className="flex-1 resize-y rounded-[7px] border border-[#dfe3ea] p-2 text-sm"
+              placeholder={`Question ${qi + 1}`}
+              rows={2}
+              value={q.question}
+              onChange={(e) => updateQuestion(q.id, { question: e.target.value })}
+            />
+            <button
+              type="button"
+              className="h-7 w-[30px] shrink-0 cursor-pointer rounded-md border border-[#ddd] bg-white"
+              title="Delete question"
+              onClick={() => removeQuestion(q.id)}
+            >
+              🗑
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            {q.options.map((opt, oi) => (
+              <div key={oi} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name={`${q.id}-correct`}
+                  checked={q.correctIndex === oi}
+                  onChange={() => updateQuestion(q.id, { correctIndex: oi })}
+                  title="Mark as correct answer"
+                />
+                <input
+                  className="flex-1 rounded-[7px] border border-[#dfe3ea] p-1.5 text-sm"
+                  placeholder={`Option ${oi + 1}`}
+                  value={opt}
+                  onChange={(e) => updateOption(q, oi, e.target.value)}
+                />
+                {q.options.length > 2 && (
+                  <button
+                    type="button"
+                    className="h-7 w-[26px] shrink-0 cursor-pointer rounded-md border border-[#ddd] bg-white text-xs"
+                    title="Remove option"
+                    onClick={() => removeOption(q, oi)}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="mt-1 cursor-pointer self-start text-xs font-medium text-[#4f7cff]"
+              onClick={() => addOption(q)}
+            >
+              + Add option
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        className="cursor-pointer self-start rounded-md border border-dashed border-[#c7cdd8] bg-[#f7f9fc] px-3 py-1.5 text-sm text-[#64748b]"
+        onClick={addQuestion}
+      >
+        + Add question
+      </button>
     </div>
   );
 }
@@ -520,23 +769,41 @@ function SplitSideView({ side }: { side: SplitSide | undefined }) {
   const { type, text, url, align } = side;
 
   return (
-    <div className="min-w-0 flex-1">
+    <div className="min-w-0 flex-1 sm:first:pr-0 sm:last:pl-6">
       {type === "heading" && (
-        <h1 className={cn("my-3 text-[32px] font-bold", alignClass(align))}>{text}</h1>
+        <h1 className={cn("my-4 font-display text-[32px] font-bold text-plum-900", alignClass(align))}>
+          {text}
+        </h1>
       )}
       {type === "subheading" && (
-        <h2 className={cn("my-2.5 text-[22px] font-semibold text-[#333]", alignClass(align))}>
+        <h2
+          className={cn(
+            "my-3 font-display text-[22px] font-semibold text-hema-700",
+            alignClass(align)
+          )}
+        >
           {text}
         </h2>
       )}
       {type === "body" && (
-        <p className={cn("text-base leading-[1.6] text-[#333]", alignClass(align))}>{text}</p>
+        <p className={cn("my-1 text-base leading-[1.75] text-slate-700", alignClass(align))}>
+          {text}
+        </p>
       )}
       {type === "image" && text && (
-        <img className="my-2 w-full rounded-lg" src={text} alt={url || ""} />
+        <img
+          className="my-2 w-full rounded-card border border-iris-300/40 shadow-soft"
+          src={text}
+          alt={url || ""}
+        />
       )}
       {type === "link" && url && (
-        <a className="text-[#2563eb]" href={url} target="_blank" rel="noreferrer">
+        <a
+          className="font-medium text-hema-700 underline decoration-iris-300 decoration-2 underline-offset-2 transition-colors hover:text-plum-900"
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+        >
           {text || url}
         </a>
       )}

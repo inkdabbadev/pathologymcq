@@ -1,4 +1,4 @@
-export type BlockType = "heading" | "subheading" | "body" | "image" | "link" | "split";
+export type BlockType = "heading" | "subheading" | "body" | "image" | "link" | "split" | "quiz";
 
 export type SplitSideType = "empty" | "heading" | "subheading" | "body" | "image" | "link";
 
@@ -12,6 +12,14 @@ export interface SplitSide {
   align?: TextAlign;
 }
 
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  /** index into options[] */
+  correctIndex: number;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
@@ -22,6 +30,8 @@ export interface Block {
   /** split only: left/right halves, each independently typed. */
   left?: SplitSide;
   right?: SplitSide;
+  /** quiz only: the set of MCQ questions. */
+  questions?: QuizQuestion[];
 }
 
 export const BLOCK_TYPES: { type: BlockType; label: string; icon: string }[] = [
@@ -31,7 +41,15 @@ export const BLOCK_TYPES: { type: BlockType; label: string; icon: string }[] = [
   { type: "image", label: "Image", icon: "🖼" },
   { type: "split", label: "Split (two halves)", icon: "⬛" },
   { type: "link", label: "Hyperlink", icon: "🔗" },
+  { type: "quiz", label: "MCQ Quiz", icon: "✅" },
 ];
+
+export const newQuizQuestion = (): QuizQuestion => ({
+  id: crypto.randomUUID(),
+  question: "",
+  options: ["", ""],
+  correctIndex: 0,
+});
 
 export const SPLIT_SIDE_TYPES: { type: SplitSideType; label: string }[] = [
   { type: "empty", label: "Empty" },
@@ -51,4 +69,5 @@ export const newBlock = (type: BlockType): Block => ({
   url: "",
   align: "left",
   ...(type === "split" ? { left: emptySplitSide(), right: emptySplitSide() } : {}),
+  ...(type === "quiz" ? { questions: [newQuizQuestion()] } : {}),
 });
