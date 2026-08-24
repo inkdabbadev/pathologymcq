@@ -46,12 +46,12 @@ export function Footer() {
   return (
     <footer className="mt-24 border-t border-iris-300/30 bg-twilight-900 text-mist-100">
       <Container className="py-16">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-hero bg-gradient-to-br from-hema-700 to-plum-900 p-8 sm:p-12 md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-card border border-iris-300/30 bg-white p-8 shadow-soft sm:p-12 md:flex-row md:items-center">
           <div>
-            <h2 className="font-display text-2xl font-bold text-white sm:text-3xl">
+            <h2 className="font-display text-2xl font-bold text-plum-900 sm:text-3xl">
               Ready to master pathology?
             </h2>
-            <p className="mt-2 max-w-lg text-sm text-iris-300">
+            <p className="mt-2 max-w-lg text-sm text-slate-700">
               Join thousands of trainees preparing for FRCPath, NEET-SS, INI-SS and
               MD/DNB with image-rich MCQs and mock tests built by faculty.
             </p>

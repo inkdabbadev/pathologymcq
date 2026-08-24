@@ -24,6 +24,12 @@
 .DS_Store
 *.pem
 
+# local page-block content store
+/.data/
+
+# locally uploaded page images
+/public/uploads/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
