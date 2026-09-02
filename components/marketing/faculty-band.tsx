@@ -20,7 +20,7 @@ export function FacultyBand({ faculty }: { faculty: FacultyMember[] }) {
       <RevealGroup className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
         {faculty.map((member) => (
           <Reveal key={member.id} className="flex flex-col items-center text-center">
-            <Avatar name={member.name} size={72} />
+            <Avatar name={member.name} size={72} imageUrl={member.avatarUrl} />
             <p className="mt-4 font-semibold text-plum-900">{member.name}</p>
             <p className="text-sm text-smoke-400">{member.title}</p>
             <p className="text-xs text-smoke-400">{member.affiliation}</p>

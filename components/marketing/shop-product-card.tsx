@@ -1,11 +1,15 @@
+"use client";
+
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import { getWhatsAppLink } from "@/components/marketing/whatsapp-button";
+import { buildWaLink } from "@/components/marketing/whatsapp-button";
+import { useSiteSettings } from "@/lib/catalog/hooks";
 import type { Product } from "@/lib/api/types";
 import { formatPrice } from "@/lib/format";
 
 export function ShopProductCard({ product }: { product: Product }) {
+  const settings = useSiteSettings();
   return (
     <div className="flex flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow">
       <div className="relative aspect-[3/2] overflow-hidden">
@@ -33,7 +37,7 @@ export function ShopProductCard({ product }: { product: Product }) {
 
         <Button asChild className="w-full">
           <a
-            href={getWhatsAppLink(`Hi! I'd like to order the ${product.name}.`)}
+            href={buildWaLink(settings.whatsappNumber, `Hi! I'd like to order the ${product.name}.`)}
             target="_blank"
             rel="noopener noreferrer"
           >

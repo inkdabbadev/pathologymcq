@@ -3,7 +3,8 @@
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { getWhatsAppLink } from "@/components/marketing/whatsapp-button";
+import { buildWaLink } from "@/components/marketing/whatsapp-button";
+import { useSiteSettings } from "@/lib/catalog/hooks";
 import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 
 /**
@@ -14,11 +15,12 @@ import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
  */
 export function WhatsAppFloat() {
   const pathname = usePathname();
+  const settings = useSiteSettings();
   const hasStickyEnrollBar = pathname?.startsWith("/courses/") && pathname !== "/courses/";
 
   return (
     <a
-      href={getWhatsAppLink("Hi! I have a question about Pathology MCQ.")}
+      href={buildWaLink(settings.whatsappNumber, "Hi! I have a question about Pathology MCQ.")}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

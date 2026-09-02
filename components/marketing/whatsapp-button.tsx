@@ -5,7 +5,12 @@ import { cn } from "@/lib/utils";
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "910000000000";
 
 export function getWhatsAppLink(message?: string) {
-  const base = `https://wa.me/${WHATSAPP_NUMBER}`;
+  return buildWaLink(WHATSAPP_NUMBER, message);
+}
+
+/** Build a wa.me link for a specific number (from site settings). */
+export function buildWaLink(number: string, message?: string) {
+  const base = `https://wa.me/${(number || WHATSAPP_NUMBER).replace(/[^0-9]/g, "")}`;
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
 

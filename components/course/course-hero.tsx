@@ -31,9 +31,19 @@ export function CourseHero({ course }: { course: Course }) {
             {course.tagline}
           </p>
 
+          {course.tags && course.tags.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {course.tags.map((tag) => (
+                <Badge key={tag} variant="default" className="normal-case">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
           <div className="mt-6 flex flex-wrap items-center gap-5">
             <div className="flex items-center gap-2 text-sm text-slate-700">
-              <Avatar name={course.faculty.name} size={32} />
+              <Avatar name={course.faculty.name} size={32} imageUrl={course.faculty.avatarUrl} />
               <div>
                 <p className="font-semibold text-plum-900">{course.faculty.name}</p>
                 <p className="text-xs text-smoke-400">{course.faculty.title}</p>

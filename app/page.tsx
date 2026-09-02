@@ -9,10 +9,9 @@ import { StatBand } from "@/components/marketing/stat-band";
 import { CourseCard } from "@/components/marketing/course-card";
 import { TestimonialCard } from "@/components/marketing/testimonial-card";
 import { CtaBand } from "@/components/marketing/cta-band";
-import { ExamPathwayCard } from "@/components/marketing/exam-pathway-card";
+import { HomeExamPathways } from "@/components/marketing/home-exam-pathways";
 import { SlideViewer } from "@/components/marketing/slide-viewer";
 import { getFeaturedCourses, getStats, getTestimonials } from "@/lib/api/content";
-import { EXAM_PATHWAYS } from "@/lib/mock/exam-pathways";
 
 export default async function Home() {
   const [allCourses, stats, testimonials] = await Promise.all([
@@ -39,13 +38,7 @@ export default async function Home() {
             </div>
           </Reveal>
 
-          <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {EXAM_PATHWAYS.map((pathway) => (
-              <Reveal key={pathway.category}>
-                <ExamPathwayCard pathway={pathway} />
-              </Reveal>
-            ))}
-          </RevealGroup>
+          <HomeExamPathways />
         </Container>
       </Section>
 

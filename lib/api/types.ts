@@ -21,6 +21,7 @@ export interface Course {
   slug: string;
   /** Slug used to filter/highlight the course from the nav's Courses dropdown, e.g. "frcpath-part-1". */
   category: string;
+  tags: string[];
   title: string;
   tagline: string;
   subspecialty: string;
@@ -34,6 +35,21 @@ export interface Course {
   whatYouGet: string[];
   curriculum: CurriculumModule[];
   faqs: FaqItem[];
+  /** Optional editable sample questions shown in the "See a sample question" block. */
+  sampleQuestions?: SampleQuestion[];
+  /** Optional editable testimonials for the "What students say" block. */
+  testimonials?: Testimonial[];
+}
+
+export interface SampleQuestion {
+  question: string;
+  /** Answer choices. */
+  options: string[];
+  /** Index of the correct option. */
+  correctIndex: number;
+  explanation: string;
+  /** Optional image; falls back to the course cover. */
+  imageUrl?: string;
 }
 
 export interface Product {

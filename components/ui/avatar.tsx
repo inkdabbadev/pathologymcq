@@ -21,12 +21,26 @@ export function Avatar({
   name,
   className,
   size = 48,
+  imageUrl,
 }: {
   name: string;
   className?: string;
   size?: number;
+  imageUrl?: string;
 }) {
   const gradient = GRADIENTS[name.length % GRADIENTS.length];
+
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={name}
+        style={{ width: size, height: size }}
+        className={cn("shrink-0 rounded-full object-cover", className)}
+      />
+    );
+  }
+
   return (
     <div
       style={{ width: size, height: size }}

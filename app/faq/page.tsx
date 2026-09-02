@@ -1,121 +1,164 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpenCheck,
-  BookText,
-  CreditCard,
-  FileText,
-  HelpCircle,
-  LifeBuoy,
-  Mail,
-  Package,
-  PlayCircle,
-  UserCog,
-  type LucideIcon,
-} from "lucide-react";
+"use client";
+
+import * as React from "react";
+import { Pencil, Plus, Save, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { Reveal, RevealGroup } from "@/components/motion/reveal";
+import { Button } from "@/components/ui/button";
 import { FaqSection } from "@/components/marketing/faq-section";
 import { WhatsAppButton } from "@/components/marketing/whatsapp-button";
-import { FAQ_CATEGORIES } from "@/lib/mock/faq-categories";
+import type { FaqItem } from "@/lib/api/types";
+import type { FaqCategory } from "@/lib/mock/faq-categories";
+import { useEdit } from "@/lib/edit/edit-context";
+import {
+  useFaqCategories,
+  useCreateFaqCategory,
+  useUpdateFaqCategory,
+  useDeleteFaqCategory,
+  useSiteSettings,
+} from "@/lib/catalog/hooks";
 
-export const metadata: Metadata = {
-  title: "FAQ",
-  description:
-    "Answers to common questions about Pathology MCQ courses, enrollment, account management, hard copy notes, shipping, payments and more.",
-};
+const field =
+  "mt-1 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500";
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: FAQ_CATEGORIES.flatMap((category) =>
-    category.items.map((faq) => ({
-      "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: { "@type": "Answer", text: faq.answer },
-    }))
-  ),
-};
+function CategoryItemsEditor({ category }: { category: FaqCategory }) {
+  const update = useUpdateFaqCategory();
+  const del = useDeleteFaqCategory();
+  const [items, setItems] = React.useState<FaqItem[]>(category.items.map((i) => ({ ...i })));
+  const [savedAt, setSavedAt] = React.useState<string | null>(null);
 
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  general: HelpCircle,
-  "courses-and-content": BookOpenCheck,
-  "account-management": UserCog,
-  "course-content-and-access": PlayCircle,
-  "hard-copy-notes-and-shipping": Package,
-  payments: CreditCard,
-  "technical-support": LifeBuoy,
-  "pdf-material": FileText,
-  "amazon-kindle-ebooks": BookText,
-  contact: Mail,
-};
+  async function save() {
+    await update.mutateAsync({
+      slug: category.slug,
+      patch: { items: items.filter((i) => i.question.trim() || i.answer.trim()) },
+    });
+    setSavedAt(new Date().toLocaleTimeString());
+  }
+
+  return (
+    <div className="mt-5 flex flex-col gap-3">
+      {items.map((it, i) => (
+        <div key={i} className="rounded-panel border border-iris-300/40 bg-white p-3">
+          <div className="flex items-start gap-2">
+            <input
+              value={it.question}
+              onChange={(e) => setItems((a) => a.map((x, j) => (j === i ? { ...x, question: e.target.value } : x)))}
+              placeholder="Question"
+              className="flex-1 rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-royal-500"
+            />
+            <button
+              onClick={() => setItems((a) => a.filter((_, j) => j !== i))}
+              className="rounded-md p-1.5 text-smoke-400 hover:text-rose-700"
+              title="Remove"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+          <textarea
+            value={it.answer}
+            onChange={(e) => setItems((a) => a.map((x, j) => (j === i ? { ...x, answer: e.target.value } : x)))}
+            rows={2}
+            placeholder="Answer"
+            className={field}
+          />
+        </div>
+      ))}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant="outline" onClick={() => setItems((a) => [...a, { question: "", answer: "" }])}>
+          <Plus className="h-4 w-4" /> Add Q&amp;A
+        </Button>
+        <Button size="sm" disabled={update.isPending} onClick={save}>
+          <Save className="h-4 w-4" /> Save
+        </Button>
+        {savedAt && <span className="text-xs text-smoke-400">Saved {savedAt}</span>}
+        <button
+          onClick={() => {
+            if (window.confirm(`Delete category "${category.title}"?`)) del.mutate(category.slug);
+          }}
+          className="ml-auto text-xs text-smoke-400 hover:text-rose-700"
+        >
+          Delete category
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function FaqPage() {
+  const { editMode } = useEdit();
+  const settings = useSiteSettings();
+  const cats = useFaqCategories();
+  const createCat = useCreateFaqCategory();
+  const updateCat = useUpdateFaqCategory();
+  const [newTitle, setNewTitle] = React.useState("");
+
+  const categories = cats.data ?? [];
+
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <Section>
-        <Container>
-          <div className="mx-auto max-w-2xl text-center">
-            <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">
-              Frequently asked questions
-            </h1>
-            <p className="mt-4 text-slate-700">
-              Browse by topic, or message us directly if you can&apos;t find what you&apos;re
-              looking for.
-            </p>
-            <div className="mt-4 flex justify-center">
-              <WhatsAppButton message="Hi! I have a question about Pathology MCQ." />
-            </div>
+    <Section>
+      <Container>
+        <div className="mx-auto max-w-2xl text-center">
+          <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">
+            Frequently asked questions
+          </h1>
+          <p className="mt-4 text-slate-700">{settings.faqSubtitle}</p>
+          <div className="mt-4 flex justify-center">
+            <WhatsAppButton message="Hi! I have a question about Pathology MCQ." />
           </div>
+        </div>
 
-          <RevealGroup className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FAQ_CATEGORIES.map((category) => {
-              const Icon = CATEGORY_ICONS[category.slug] ?? HelpCircle;
-              return (
-                <Reveal key={category.slug}>
-                  <Link
-                    href={`#${category.slug}`}
-                    className="group flex items-center gap-4 rounded-card border border-iris-300/30 bg-white p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-royal-500/50 hover:shadow-glow"
+        {editMode && (
+          <div className="mx-auto mt-8 flex max-w-xl items-end gap-2 rounded-card border border-dashed border-royal-500/50 bg-mist-100/60 p-4">
+            <div className="flex-1">
+              <label className="text-sm font-semibold text-plum-900">New FAQ category</label>
+              <input
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="e.g. Refunds"
+                className={field}
+              />
+            </div>
+            <Button
+              disabled={!newTitle.trim() || createCat.isPending}
+              onClick={() => createCat.mutate({ title: newTitle }, { onSuccess: () => setNewTitle("") })}
+            >
+              <Plus className="h-4 w-4" /> Add
+            </Button>
+          </div>
+        )}
+
+        <div className="mx-auto mt-16 flex max-w-3xl flex-col gap-14">
+          {cats.isLoading && <p className="text-slate-700">Loading…</p>}
+          {categories.map((category) => (
+            <div key={category.slug} id={category.slug}>
+              <div className="flex items-center gap-2">
+                <h2 className="font-display text-2xl font-bold text-plum-900">{category.title}</h2>
+                {editMode && (
+                  <button
+                    onClick={() => {
+                      const title = window.prompt("Rename category", category.title);
+                      if (title && title.trim() && title !== category.title)
+                        updateCat.mutate({ slug: category.slug, patch: { title } });
+                    }}
+                    className="text-smoke-400 hover:text-royal-500"
+                    title="Rename category"
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-panel bg-cyto-100 text-rose-700 transition-transform duration-300 group-hover:scale-110">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span className="flex-1">
-                      <span className="block font-display text-sm font-semibold text-plum-900">
-                        {category.title}
-                      </span>
-                      <span className="block text-xs text-smoke-400">
-                        {category.items.length} question{category.items.length === 1 ? "" : "s"}
-                      </span>
-                    </span>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-smoke-400 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-rose-700" />
-                  </Link>
-                </Reveal>
-              );
-            })}
-          </RevealGroup>
-
-          <div className="mx-auto mt-16 flex max-w-3xl flex-col gap-14">
-            {FAQ_CATEGORIES.map((category) => (
-              <div key={category.slug} id={category.slug}>
-                <h2 className="font-display text-2xl font-bold text-plum-900">
-                  {category.title}
-                </h2>
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              {editMode ? (
+                <CategoryItemsEditor category={category} />
+              ) : (
                 <div className="mt-5">
                   <FaqSection items={category.items} idPrefix={category.slug} />
                 </div>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </Section>
-    </>
+              )}
+            </div>
+          ))}
+        </div>
+      </Container>
+    </Section>
   );
 }

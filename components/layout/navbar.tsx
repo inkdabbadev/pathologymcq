@@ -11,14 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/layout/cart-drawer";
 import { useAuthSession, useLogout } from "@/lib/auth/use-auth";
-
-const NAV_LINKS = [
-  { href: "/shop", label: "Shop" },
-  { href: "/courses", label: "Courses" },
-  { href: "/practice", label: "Practice Questions" },
-  { href: "/about", label: "About / Faculty" },
-  { href: "/faq", label: "FAQ" },
-];
+import { useSiteSettings } from "@/lib/catalog/hooks";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -27,6 +20,8 @@ export function Navbar() {
   const [cartOpen, setCartOpen] = React.useState(false);
   const { data: user } = useAuthSession();
   const logoutMutation = useLogout();
+  const settings = useSiteSettings();
+  const navLinks = settings.nav;
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -44,14 +39,18 @@ export function Navbar() {
         )}
       >
         <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold text-plum-900">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-hema-700 to-eosin-500 text-sm text-white">
-            P
-          </span>
-          Pathology MCQ
+          {settings.logoUrl ? (
+            <img src={settings.logoUrl} alt={settings.siteName} className="h-8 w-8 rounded-full object-cover" />
+          ) : (
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-hema-700 to-eosin-500 text-sm text-white">
+              {settings.siteName.charAt(0) || "P"}
+            </span>
+          )}
+          {settings.siteName}
         </Link>
 
         <nav className="hidden items-center gap-1 xl:flex">
-          {NAV_LINKS.map((link) => {
+          {navLinks.map((link) => {
             const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
             return (
               <Link
@@ -159,7 +158,7 @@ export function Navbar() {
                       </div>
 
                       <nav className="mt-8 flex flex-col gap-1">
-                        {NAV_LINKS.map((link) => (
+                        {navLinks.map((link) => (
                           <Link
                             key={link.href}
                             href={link.href}
