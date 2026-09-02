@@ -38,6 +38,7 @@ export interface SiteSettings {
   shopHeading: string;
   shopSubtitle: string;
   shopCards: ShopCard[];
+  aboutHeading: string;
   aboutIntro: string;
   aboutContent: string;
   aboutTeamHeading: string;
@@ -133,6 +134,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
       description: "Course and hard copy notes bundled together at a discounted price.",
     },
   ],
+  aboutHeading: "About Us",
   aboutIntro:
     "Our dedicated team of pathologists are committed to creating a reliable, comprehensive resource for pathology students, residents, and practitioners. Together, we aim to support your journey through the world of pathology, providing tools and resources designed to help you excel in your studies and practice.",
   aboutContent:

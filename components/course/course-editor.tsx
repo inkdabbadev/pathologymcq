@@ -3,14 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ImageIcon, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
+import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import type { Course, CurriculumModule, FaqItem, SampleQuestion, Testimonial } from "@/lib/api/types";
 import { MOCK_TEST_TYPES } from "@/lib/mock/mock-test-types";
-import { uploadImage } from "@/lib/blog/api";
 import { useDeleteCourse, useUpdateCourse, useSiteSettings } from "@/lib/catalog/hooks";
 
 
@@ -38,11 +38,12 @@ export function CourseEditor({ course }: { course: Course }) {
   const [subspecialty, setSubspecialty] = React.useState(course.subspecialty);
   const [examTargets, setExamTargets] = React.useState(course.examTargets.join(", "));
   const [category, setCategory] = React.useState(course.category);
+  const [customCategory, setCustomCategory] = React.useState(course.category);
+  const categorySelectValue = CATEGORY_OPTIONS.some((o) => o.category === category) ? category : "__custom__";
   const [priceRupees, setPriceRupees] = React.useState(String(Math.round(course.priceCents / 100)));
   const [image, setImage] = React.useState(course.imageUrl);
   const [whoFor, setWhoFor] = React.useState(course.whoFor.join("\n"));
   const [whatYouGet, setWhatYouGet] = React.useState(course.whatYouGet.join("\n"));
-  const [uploading, setUploading] = React.useState(false);
   const [savedAt, setSavedAt] = React.useState<string | null>(null);
 
   // Faculty
@@ -73,18 +74,8 @@ export function CourseEditor({ course }: { course: Course }) {
     }))
   );
 
-  async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setUploading(true);
-    try {
-      setImage(await uploadImage(f));
-    } finally {
-      setUploading(false);
-    }
-  }
-
   async function save() {
+    const nextCategory = categorySelectValue === "__custom__" ? customCategory.trim() || "custom-category" : category;
     const curriculum: CurriculumModule[] = modules
       .map((m) => ({ title: m.title.trim(), lessons: linesToArr(m.lessons) }))
       .filter((m) => m.title || m.lessons.length);
@@ -121,7 +112,7 @@ export function CourseEditor({ course }: { course: Course }) {
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         subspecialty,
         examTargets: examTargets.split(",").map((t) => t.trim()).filter(Boolean),
-        category,
+        category: nextCategory,
         priceCents: Math.max(0, Math.round(Number(priceRupees) || 0) * 100),
         imageUrl: image,
         whoFor: linesToArr(whoFor),
@@ -176,11 +167,9 @@ export function CourseEditor({ course }: { course: Course }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={image} alt="" className="h-52 w-full object-cover" />
         </div>
-        <label className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-1.5 text-sm text-plum-900 hover:border-royal-500">
-          <ImageIcon className="h-4 w-4" />
-          {uploading ? "Uploading…" : "Change cover image"}
-          <input type="file" accept="image/*" className="hidden" onChange={onImage} />
-        </label>
+        <div className="mt-3">
+          <ImageCropUpload value={image} label="Change cover image" aspectRatio={1.8} onChange={setImage} />
+        </div>
 
         {/* Basics */}
         <div className="mt-6 grid gap-4">
@@ -209,13 +198,22 @@ export function CourseEditor({ course }: { course: Course }) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={label}>Category / exam pathway</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className={field}>
+              <select value={categorySelectValue} onChange={(e) => setCategory(e.target.value)} className={field}>
+                <option value="__custom__">Custom category…</option>
                 {CATEGORY_OPTIONS.map((o) => (
                   <option key={o.category} value={o.category}>
                     {o.label}
                   </option>
                 ))}
               </select>
+              {categorySelectValue === "__custom__" && (
+                <input
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Enter custom category slug"
+                  className={`${field} mt-2`}
+                />
+              )}
             </div>
             <div>
               <label className={label}>Price (₹)</label>

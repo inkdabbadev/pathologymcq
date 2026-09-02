@@ -6,9 +6,9 @@ import { ImageIcon, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
+import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import { ShopProductCard } from "@/components/marketing/shop-product-card";
 import type { Product } from "@/lib/api/types";
-import { uploadImage } from "@/lib/blog/api";
 import { useEdit } from "@/lib/edit/edit-context";
 import {
   useBundles,
@@ -28,18 +28,6 @@ function BundleEditPanel({ bundle, onDone }: { bundle: Product; onDone: () => vo
   const [image, setImage] = React.useState(bundle.imageUrl);
   const [description, setDescription] = React.useState(bundle.description);
   const [includes, setIncludes] = React.useState((bundle.includes ?? []).join("\n"));
-  const [uploading, setUploading] = React.useState(false);
-
-  async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setUploading(true);
-    try {
-      setImage(await uploadImage(f));
-    } finally {
-      setUploading(false);
-    }
-  }
 
   async function save() {
     await update.mutateAsync({
@@ -61,11 +49,7 @@ function BundleEditPanel({ bundle, onDone }: { bundle: Product; onDone: () => vo
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt="" className="h-32 w-full object-cover" />
       </div>
-      <label className="inline-flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-iris-300/60 px-3 py-1 text-xs text-plum-900 hover:border-royal-500">
-        <ImageIcon className="h-3.5 w-3.5" />
-        {uploading ? "Uploading…" : "Image"}
-        <input type="file" accept="image/*" className="hidden" onChange={onImage} />
-      </label>
+      <ImageCropUpload value={image} label="Change image" aspectRatio={1.4} onChange={setImage} />
       <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className={field} />
       <input
         type="number"

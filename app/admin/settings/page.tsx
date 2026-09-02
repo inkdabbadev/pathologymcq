@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
+import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
 import type { SiteSettings, ShopCard, ExamPathwaySetting } from "@/lib/site/defaults";
@@ -83,11 +84,27 @@ export default function SiteSettingsPage() {
           </div>
           <div className="sm:col-span-2">
             <label className={label}>Website logo URL</label>
-            <input value={s.logoUrl ?? ""} onChange={(e) => set("logoUrl", e.target.value)} className={field} placeholder="https://.../logo.png" />
+            <div className="mt-1">
+              <ImageCropUpload
+                value={s.logoUrl ?? ""}
+                label="Upload logo"
+                aspectRatio={3.2}
+                onChange={(url) => set("logoUrl", url)}
+              />
+              <input value={s.logoUrl ?? ""} onChange={(e) => set("logoUrl", e.target.value)} className={`${field} mt-2`} placeholder="https://.../logo.png" />
+            </div>
           </div>
           <div className="sm:col-span-2">
             <label className={label}>Practice page logo URL</label>
-            <input value={s.practiceLogoUrl ?? ""} onChange={(e) => set("practiceLogoUrl", e.target.value)} className={field} placeholder="https://.../practice-logo.png" />
+            <div className="mt-1">
+              <ImageCropUpload
+                value={s.practiceLogoUrl ?? ""}
+                label="Upload practice logo"
+                aspectRatio={2.2}
+                onChange={(url) => set("practiceLogoUrl", url)}
+              />
+              <input value={s.practiceLogoUrl ?? ""} onChange={(e) => set("practiceLogoUrl", e.target.value)} className={`${field} mt-2`} placeholder="https://.../practice-logo.png" />
+            </div>
           </div>
         </div>
 
@@ -119,6 +136,10 @@ export default function SiteSettingsPage() {
           <div>
             <label className={label}>FAQ subtitle</label>
             <textarea value={s.faqSubtitle} onChange={(e) => set("faqSubtitle", e.target.value)} rows={2} className={field} />
+          </div>
+          <div>
+            <label className={label}>About heading</label>
+            <input value={s.aboutHeading ?? "About Us"} onChange={(e) => set("aboutHeading", e.target.value)} className={field} />
           </div>
           <div>
             <label className={label}>About intro paragraph</label>

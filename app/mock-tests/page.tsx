@@ -7,9 +7,9 @@ import { ArrowRight, ImageIcon, Pencil, Plus, Save, Trash2, X } from "lucide-rea
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
+import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import { MockTestCard } from "@/components/marketing/mock-test-card";
 import type { MockTestProduct } from "@/lib/mock/mock-test-products";
-import { uploadImage } from "@/lib/blog/api";
 import { useEdit } from "@/lib/edit/edit-context";
 import {
   useCreateMockTest,
@@ -34,18 +34,6 @@ function MockEditPanel({ mt, onDone }: { mt: MockTestProduct; onDone: () => void
   const [examPattern, setExamPattern] = React.useState(mt.examPattern);
   const [questionCount, setQuestionCount] = React.useState(String(mt.questionCount));
   const [image, setImage] = React.useState(mt.imageUrl);
-  const [uploading, setUploading] = React.useState(false);
-
-  async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setUploading(true);
-    try {
-      setImage(await uploadImage(f));
-    } finally {
-      setUploading(false);
-    }
-  }
 
   async function save() {
     await update.mutateAsync({
@@ -68,11 +56,7 @@ function MockEditPanel({ mt, onDone }: { mt: MockTestProduct; onDone: () => void
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt="" className="h-28 w-full object-cover" />
       </div>
-      <label className="inline-flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-iris-300/60 px-3 py-1 text-xs text-plum-900 hover:border-royal-500">
-        <ImageIcon className="h-3.5 w-3.5" />
-        {uploading ? "Uploading…" : "Image"}
-        <input type="file" accept="image/*" className="hidden" onChange={onImage} />
-      </label>
+      <ImageCropUpload value={image} label="Change image" aspectRatio={1.5} onChange={setImage} />
       <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className={field} />
       <input value={shortLabel} onChange={(e) => setShortLabel(e.target.value)} placeholder="Short label (button text)" className={field} />
       <select value={category} onChange={(e) => setCategory(e.target.value)} className={field}>
@@ -151,24 +135,30 @@ export default function MockTestsPage() {
         </div>
 
         {editMode && (
-          <div className="mx-auto mt-8 grid max-w-2xl gap-4 rounded-card border border-dashed border-royal-500/50 bg-mist-100/60 p-4 sm:grid-cols-2">
-            <div>
-              <p className="text-sm font-semibold text-plum-900">New mock test</p>
-              <input
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Title"
-                className={field}
-              />
-              <div className="mt-2 flex gap-2">
-                <select value={selectedNewCat} onChange={(e) => setNewCat(e.target.value)} className={field}>
-                  {cats.map((t) => (
-                    <option key={t.category} value={t.category}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
+          <div className="mx-auto mt-8 max-w-3xl rounded-[22px] border border-dashed border-violet-300 bg-violet-50/60 p-4 shadow-sm">
+            <div className="grid gap-3">
+              <div className="grid gap-2 md:grid-cols-[1fr_220px_auto] md:items-end">
+                <div>
+                  <p className="text-sm font-semibold text-plum-900">New mock test</p>
+                  <input
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="Title"
+                    className={`${field} mt-2`}
+                  />
+                </div>
+                <div>
+                  <p className="sr-only">Category</p>
+                  <select value={selectedNewCat} onChange={(e) => setNewCat(e.target.value)} className={`${field} mt-2`}>
+                    {cats.map((t) => (
+                      <option key={t.category} value={t.category}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <Button
+                  className="h-[42px]"
                   disabled={!newTitle.trim() || createMock.isPending}
                   onClick={() =>
                     createMock.mutate(
@@ -180,22 +170,27 @@ export default function MockTestsPage() {
                   <Plus className="h-4 w-4" /> Add
                 </Button>
               </div>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-plum-900">New category</p>
-              <input
-                value={newCatLabel}
-                onChange={(e) => setNewCatLabel(e.target.value)}
-                placeholder="e.g. Cytopathology Mocks"
-                className={field}
-              />
-              <Button
-                className="mt-2"
-                disabled={!newCatLabel.trim() || createCat.isPending}
-                onClick={() => createCat.mutate({ label: newCatLabel }, { onSuccess: () => setNewCatLabel("") })}
-              >
-                <Plus className="h-4 w-4" /> Add category
-              </Button>
+
+              <div className="h-px bg-violet-200/80" />
+
+              <div className="grid gap-2 md:grid-cols-[1fr_auto] md:items-end">
+                <div>
+                  <p className="text-sm font-semibold text-plum-900">New category</p>
+                  <input
+                    value={newCatLabel}
+                    onChange={(e) => setNewCatLabel(e.target.value)}
+                    placeholder="e.g. Cytopathology Mocks"
+                    className={`${field} mt-2`}
+                  />
+                </div>
+                <Button
+                  className="h-[42px]"
+                  disabled={!newCatLabel.trim() || createCat.isPending}
+                  onClick={() => createCat.mutate({ label: newCatLabel }, { onSuccess: () => setNewCatLabel("") })}
+                >
+                  <Plus className="h-4 w-4" /> Add category
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -207,32 +202,36 @@ export default function MockTestsPage() {
 
             return (
               <div key={type.category} id={type.category}>
-                <div className="flex items-center gap-2">
-                  <h2 className="font-display text-2xl font-bold text-plum-900">{type.label}</h2>
-                  {editMode && (
-                    <>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-display text-2xl font-bold text-plum-900">{type.label}</h2>
+                    {editMode && (
                       <button
                         onClick={() => {
                           const label = window.prompt("Rename category", type.label);
                           if (label && label.trim() && label !== type.label)
                             updateCat.mutate({ slugId: type.category, patch: { label } });
                         }}
-                        className="text-smoke-400 hover:text-royal-500"
+                        className="rounded-full border border-violet-200 bg-white p-1.5 text-smoke-400 transition hover:border-royal-500 hover:text-royal-500"
                         title="Rename category"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`Delete category "${type.label}" and its mock tests?`))
-                            deleteCat.mutate(type.category);
-                        }}
-                        className="text-smoke-400 hover:text-rose-700"
-                        title="Delete category"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </>
+                    )}
+                  </div>
+
+                  {editMode && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete category "${type.label}" and its mock tests?`))
+                          deleteCat.mutate(type.category);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100"
+                      title="Delete category"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </button>
                   )}
                 </div>
                 {type.description && <p className="mt-1 text-sm text-slate-700">{type.description}</p>}

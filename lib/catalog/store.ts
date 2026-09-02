@@ -50,7 +50,7 @@ async function apiJson<T>(res: Response): Promise<T> {
 }
 
 async function fetchKind<T>(kind: Kind): Promise<T[]> {
-  const res = await fetch(`/api/catalog?kind=${kind}`, { cache: "no-store" });
+  const res = await fetch(`/api/catalog?kind=${kind}`);
   const { items } = await apiJson<{ items: T[] }>(res);
   return items ?? [];
 }
@@ -256,12 +256,13 @@ export async function deleteMockCategory(slugId: string): Promise<void> {
 export async function listPracticeTopics(): Promise<PracticeTopic[]> {
   return fetchKind<PracticeTopic>("practice_topics");
 }
-export async function createPracticeTopic(input: { label: string }): Promise<PracticeTopic> {
+export async function createPracticeTopic(input: { label: string; iconUrl?: string }): Promise<PracticeTopic> {
   const list = await listPracticeTopics();
   const taken = new Set(list.map((t) => t.slug));
   const topic: PracticeTopic = {
     slug: uniqueSlug(slugify(input.label), taken),
     label: input.label.trim() || "New topic",
+    iconUrl: input.iconUrl?.trim() || undefined,
   };
   await upsert("practice_topics", { id: topic.slug, slug: topic.slug, position: Date.now(), data: topic });
   return topic;
@@ -273,7 +274,11 @@ export async function updatePracticeTopic(
   const list = await listPracticeTopics();
   const cur = list.find((t) => t.slug === slug);
   if (!cur) throw new Error("Topic not found");
-  const next = { ...cur, label: patch.label !== undefined ? patch.label.trim() : cur.label };
+  const next: PracticeTopic = {
+    ...cur,
+    label: patch.label !== undefined ? patch.label.trim() : cur.label,
+    iconUrl: patch.iconUrl !== undefined ? (patch.iconUrl?.trim() || undefined) : cur.iconUrl,
+  };
   await upsert("practice_topics", { id: next.slug, slug: next.slug, data: next });
   return next;
 }

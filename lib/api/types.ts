@@ -92,6 +92,7 @@ export interface Stat {
 export interface PracticeTopic {
   slug: string;
   label: string;
+  iconUrl?: string;
 }
 
 export interface PracticeQuestion {
