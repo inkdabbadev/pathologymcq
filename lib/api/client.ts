@@ -1,4 +1,4 @@
-const WP_URL = process.env.NEXT_PUBLIC_WP_URL;
+const WP_URL = process.env.WP_URL;
 
 export interface WPFetchOptions {
   revalidate?: number;
@@ -7,8 +7,8 @@ export interface WPFetchOptions {
 
 /**
  * POSTs a query to WPGraphQL (`${WP_URL}/graphql`). Returns null (never throws) when
- * NEXT_PUBLIC_WP_URL is unset or the request/parse fails, so callers can fall back to
- * mock data and pages keep rendering while the WP backend isn't wired up yet.
+ * WP_URL is unset or the request/parse fails, so callers can fall back to mock data
+ * and pages keep rendering while the WP backend isn't wired up yet.
  */
 export async function wpGraphQLFetch<T>(
   query: string,
