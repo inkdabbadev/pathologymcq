@@ -84,9 +84,9 @@ export default function SiteSettingsPage() {
             <label className={label}>Site name</label>
             <input value={s.siteName} onChange={(e) => set("siteName", e.target.value)} className={field} />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className={label}>WhatsApp number</label>
-            <div className="mt-1 flex">
+            <div className="mt-1 flex min-w-0">
               <span className="inline-flex items-center rounded-l-panel border border-r-0 border-iris-300/60 bg-smoke-100 px-3 text-sm text-slate-700">
                 +{WHATSAPP_COUNTRY_CODE}
               </span>
@@ -98,7 +98,7 @@ export default function SiteSettingsPage() {
                 inputMode="numeric"
                 maxLength={10}
                 placeholder="9876543210"
-                className={`${field} mt-0 rounded-l-none`}
+                className={`${field} mt-0 min-w-0 flex-1 rounded-l-none`}
               />
               <input value={s.logoUrl ?? ""} onChange={(e) => set("logoUrl", e.target.value)} className={`${field} mt-2`} placeholder="https://.../logo.png" />
             </div>
