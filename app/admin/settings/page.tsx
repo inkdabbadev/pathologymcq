@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
-import type { SiteSettings, ShopCard, ExamPathwaySetting } from "@/lib/site/defaults";
+import {
+  normalizeWhatsAppNumber,
+  WHATSAPP_COUNTRY_CODE,
+  type SiteSettings,
+  type ShopCard,
+  type ExamPathwaySetting,
+} from "@/lib/site/defaults";
 import { slugify } from "@/lib/blog/types";
 
 const field =
@@ -49,7 +55,7 @@ export default function SiteSettingsPage() {
   }
 
   async function save() {
-    await update.mutateAsync(s);
+    await update.mutateAsync({ ...s, whatsappNumber: normalizeWhatsAppNumber(s.whatsappNumber) });
     setSavedAt(new Date().toLocaleTimeString());
   }
 
@@ -79,17 +85,20 @@ export default function SiteSettingsPage() {
             <input value={s.siteName} onChange={(e) => set("siteName", e.target.value)} className={field} />
           </div>
           <div>
-            <label className={label}>WhatsApp number (digits, incl. country code)</label>
-            <input value={s.whatsappNumber} onChange={(e) => set("whatsappNumber", e.target.value.replace(/[^0-9]/g, ""))} className={field} />
-          </div>
-          <div className="sm:col-span-2">
-            <label className={label}>Website logo URL</label>
-            <div className="mt-1">
-              <ImageCropUpload
-                value={s.logoUrl ?? ""}
-                label="Upload logo"
-                aspectRatio={3.2}
-                onChange={(url) => set("logoUrl", url)}
+            <label className={label}>WhatsApp number</label>
+            <div className="mt-1 flex">
+              <span className="inline-flex items-center rounded-l-panel border border-r-0 border-iris-300/60 bg-smoke-100 px-3 text-sm text-slate-700">
+                +{WHATSAPP_COUNTRY_CODE}
+              </span>
+              <input
+                value={s.whatsappNumber.replace(/[^0-9]/g, "").replace(/^91/, "")}
+                onChange={(e) =>
+                  set("whatsappNumber", `${WHATSAPP_COUNTRY_CODE}${e.target.value.replace(/[^0-9]/g, "")}`)
+                }
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="9876543210"
+                className={`${field} mt-0 rounded-l-none`}
               />
               <input value={s.logoUrl ?? ""} onChange={(e) => set("logoUrl", e.target.value)} className={`${field} mt-2`} placeholder="https://.../logo.png" />
             </div>

@@ -385,7 +385,7 @@ export type { FaqItem, FaqCategory };
 
 // ── Site settings (single doc) ───────────────────────────────────────────────
 import type { SiteSettings } from "@/lib/site/defaults";
-import { DEFAULT_SETTINGS } from "@/lib/site/defaults";
+import { DEFAULT_SETTINGS, normalizeWhatsAppNumber } from "@/lib/site/defaults";
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const rows = await fetchKind<SiteSettings>("site_settings");
@@ -393,7 +393,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 }
 export async function updateSiteSettings(patch: Partial<SiteSettings>): Promise<SiteSettings> {
   const cur = await getSiteSettings();
-  const next = { ...cur, ...patch };
+  const next = {
+    ...cur,
+    ...patch,
+    whatsappNumber: normalizeWhatsAppNumber(patch.whatsappNumber ?? cur.whatsappNumber),
+  };
   await upsert("site_settings", { id: "main", position: 0, data: next });
   return next;
 }

@@ -1,6 +1,10 @@
+"use client";
+
 import { MessageCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useSiteSettings } from "@/lib/catalog/hooks";
+import { normalizeWhatsAppNumber } from "@/lib/site/defaults";
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "910000000000";
 
@@ -10,7 +14,7 @@ export function getWhatsAppLink(message?: string) {
 
 /** Build a wa.me link for a specific number (from site settings). */
 export function buildWaLink(number: string, message?: string) {
-  const base = `https://wa.me/${(number || WHATSAPP_NUMBER).replace(/[^0-9]/g, "")}`;
+  const base = `https://wa.me/${normalizeWhatsAppNumber(number || WHATSAPP_NUMBER)}`;
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
 
@@ -23,9 +27,11 @@ export function WhatsAppButton({
   className?: string;
   label?: string;
 }) {
+  const settings = useSiteSettings();
+
   return (
     <a
-      href={getWhatsAppLink(message)}
+      href={buildWaLink(settings.whatsappNumber, message)}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
