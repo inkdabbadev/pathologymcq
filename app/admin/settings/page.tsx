@@ -100,7 +100,23 @@ export default function SiteSettingsPage() {
                 placeholder="9876543210"
                 className={`${field} mt-0 min-w-0 flex-1 rounded-l-none`}
               />
-              <input value={s.logoUrl ?? ""} onChange={(e) => set("logoUrl", e.target.value)} className={`${field} mt-2`} placeholder="https://.../logo.png" />
+            </div>
+          </div>
+          <div className="sm:col-span-2">
+            <label className={label}>Website logo URL</label>
+            <div className="mt-1">
+              <ImageCropUpload
+                value={s.logoUrl ?? ""}
+                label="Upload logo"
+                aspectRatio={3.2}
+                onChange={(url) => set("logoUrl", url)}
+              />
+              <input
+                value={s.logoUrl ?? ""}
+                onChange={(e) => set("logoUrl", e.target.value)}
+                className={`${field} mt-2`}
+                placeholder="https://.../logo.png"
+              />
             </div>
           </div>
           <div className="sm:col-span-2">
