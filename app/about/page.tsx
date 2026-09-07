@@ -85,7 +85,11 @@ export default function AboutPage() {
       <div className="bg-ambient relative -mt-[var(--nav-offset)] overflow-hidden pt-[calc(var(--nav-offset)+4rem)] pb-16">
         <Container className="max-w-3xl text-center">
           <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">{settings.aboutHeading}</h1>
-          <p className="mt-6 text-balance text-lg leading-relaxed text-slate-700">{settings.aboutIntro}</p>
+          <div className="mt-6 flex flex-col gap-4 text-lg leading-relaxed text-slate-700">
+            {settings.aboutIntro.split("\n\n").map((para, i) => (
+              <p key={i} className="text-balance">{para}</p>
+            ))}
+          </div>
         </Container>
       </div>
 

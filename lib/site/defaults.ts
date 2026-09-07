@@ -143,10 +143,10 @@ export const DEFAULT_SETTINGS: SiteSettings = {
       description: "Course and hard copy notes bundled together at a discounted price.",
     },
   ],
-  aboutHeading: "About Us",
+  aboutHeading: "About Pathology MCQ",
   aboutIntro:
-    "Our dedicated team of pathologists are committed to creating a reliable, comprehensive resource for pathology students, residents, and practitioners. Together, we aim to support your journey through the world of pathology, providing tools and resources designed to help you excel in your studies and practice.",
-  aboutTeamHeading: "Meet the team",
+    "Pathology MCQ is a pathology education platform built by practising pathologists for medical students, residents, and consultants preparing for postgraduate and superspeciality exams — including MD/DNB, FRCPath, NEET-SS, INI-SS, DM fellowships, and allied certification pathways.\n\nWe create the study ecosystem we wished we had in training: image-rich MCQs with annotated slides, structured subspecialty courses, hard-copy notes, full-length mock papers, and continuously updated content aligned with WHO classifications and real exam patterns.\n\nEvery course, question bank, and note set is authored and reviewed by faculty who work day-to-day in surgical pathology, hemato-pathology, onco-pathology, molecular pathology, perinatal and clinical pathology, and gynaec cytology — across teaching hospitals, diagnostic labs, and research institutes.",
+  aboutTeamHeading: "Our faculty",
   practiceSubtitle:
     "Free, image-rich MCQs organized by subspecialty. Pick a topic to start a 10-question set with instant feedback and explanations.",
   faqSubtitle:

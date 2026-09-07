@@ -1,0 +1,6 @@
+-- Update About page content on pathologymcqs (merge into existing site_settings; other settings preserved).
+-- Run in the Supabase SQL editor.
+update public.catalog_items
+set data = data || '{"aboutHeading":"About Pathology MCQ","aboutTeamHeading":"Our faculty","aboutIntro":"Pathology MCQ is a pathology education platform built by practising pathologists for medical students, residents, and consultants preparing for postgraduate and superspeciality exams - including MD/DNB, FRCPath, NEET-SS, INI-SS, DM fellowships, and allied certification pathways.\n\nWe create the study ecosystem we wished we had in training: image-rich MCQs with annotated slides, structured subspecialty courses, hard-copy notes, full-length mock papers, and continuously updated content aligned with WHO classifications and real exam patterns.\n\nEvery course, question bank, and note set is authored and reviewed by faculty who work day-to-day in surgical pathology, hemato-pathology, onco-pathology, molecular pathology, perinatal and clinical pathology, and gynaec cytology - across teaching hospitals, diagnostic labs, and research institutes."}'::jsonb,
+    updated_at = now()
+where kind = 'site_settings' and id = 'main';
