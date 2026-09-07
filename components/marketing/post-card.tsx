@@ -12,7 +12,7 @@ export function PostCard({ post }: { post: Post }) {
     >
       <div className="relative aspect-[3/2] overflow-hidden">
         <Image
-          src={post.imageUrl}
+          src={post.imageUrl || "/mock/course-thumb-2.svg"}
           alt=""
           fill
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"

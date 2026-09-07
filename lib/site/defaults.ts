@@ -28,8 +28,8 @@ export interface ExamPathwaySetting {
 
 export interface SiteSettings {
   siteName: string;
-  logoUrl: string;
-  practiceLogoUrl: string;
+  logoUrl?: string;
+  practiceLogoUrl?: string;
   whatsappNumber: string;
   nav: NavLink[];
   footerCta: { heading: string; subtext: string; buttonLabel: string; buttonHref: string };
@@ -40,7 +40,6 @@ export interface SiteSettings {
   shopCards: ShopCard[];
   aboutHeading: string;
   aboutIntro: string;
-  aboutContent: string;
   aboutTeamHeading: string;
   practiceSubtitle: string;
   faqSubtitle: string;
@@ -147,8 +146,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   aboutHeading: "About Us",
   aboutIntro:
     "Our dedicated team of pathologists are committed to creating a reliable, comprehensive resource for pathology students, residents, and practitioners. Together, we aim to support your journey through the world of pathology, providing tools and resources designed to help you excel in your studies and practice.",
-  aboutContent:
-    "Pathology MCQ was created to make subspecialty learning more accessible, practical, and exam-focused. We curate high-yield questions, faculty-led explanations, and structured revision pathways that help trainees prepare with confidence for FRCPath, NEET-SS, INI-SS, and other pathology examinations.",
   aboutTeamHeading: "Meet the team",
   practiceSubtitle:
     "Free, image-rich MCQs organized by subspecialty. Pick a topic to start a 10-question set with instant feedback and explanations.",

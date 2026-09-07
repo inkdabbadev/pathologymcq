@@ -14,7 +14,7 @@ export function CourseCard({ course }: { course: Course }) {
     >
       <div className="relative aspect-[3/2] overflow-hidden">
         <Image
-          src={course.imageUrl}
+          src={course.imageUrl || "/mock/course-thumb-1.svg"}
           alt=""
           fill
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
@@ -33,18 +33,8 @@ export function CourseCard({ course }: { course: Course }) {
           {course.title}
         </h3>
 
-        {course.tags && course.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {course.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="default" className="w-fit normal-case">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-
         <div className="flex items-center gap-2 text-sm text-slate-700">
-          <Avatar name={course.faculty.name} size={28} imageUrl={course.faculty.avatarUrl} />
+          <Avatar name={course.faculty.name} size={28} />
           <span>{course.faculty.name}</span>
         </div>
 

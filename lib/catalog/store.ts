@@ -91,7 +91,6 @@ export async function createCourse(input: { title: string; category: string }): 
     id: uid("course"),
     slug: uniqueSlug(slugify(input.title), taken),
     category: input.category || "frcpath-part-1",
-    tags: [],
     title: input.title.trim() || "Untitled course",
     tagline: "",
     subspecialty: "General",

@@ -21,7 +21,6 @@ export interface Course {
   slug: string;
   /** Slug used to filter/highlight the course from the nav's Courses dropdown, e.g. "frcpath-part-1". */
   category: string;
-  tags?: string[];
   title: string;
   tagline: string;
   subspecialty: string;
@@ -92,6 +91,7 @@ export interface Stat {
 export interface PracticeTopic {
   slug: string;
   label: string;
+  /** Optional uploaded logo/icon URL; falls back to a built-in icon. */
   iconUrl?: string;
 }
 

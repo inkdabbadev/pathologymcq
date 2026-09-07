@@ -75,7 +75,7 @@ export default function SiteSettingsPage() {
         </div>
 
         <h1 className="font-display text-3xl font-bold text-plum-900">Site settings</h1>
-        <p className="mt-1 text-slate-700">Global content: brand, contact, navigation, footer, shop, page copy, exam pathways.</p>
+        <p className="mt-1 text-slate-700">Global content: brand, contact, footer, shop, page copy, exam pathways.</p>
 
         {/* Brand & contact */}
         <h2 className="mt-8 font-display text-lg font-bold text-plum-900">Brand &amp; contact</h2>
@@ -128,24 +128,15 @@ export default function SiteSettingsPage() {
                 aspectRatio={2.2}
                 onChange={(url) => set("practiceLogoUrl", url)}
               />
-              <input value={s.practiceLogoUrl ?? ""} onChange={(e) => set("practiceLogoUrl", e.target.value)} className={`${field} mt-2`} placeholder="https://.../practice-logo.png" />
+              <input
+                value={s.practiceLogoUrl ?? ""}
+                onChange={(e) => set("practiceLogoUrl", e.target.value)}
+                className={`${field} mt-2`}
+                placeholder="https://.../practice-logo.png"
+              />
             </div>
           </div>
         </div>
-
-        {/* Navigation */}
-        <SectionEditor
-          title="Navigation links"
-          items={s.nav}
-          onChange={(nav) => set("nav", nav)}
-          empty={{ href: "/", label: "New link" }}
-          render={(item, onEdit) => (
-            <>
-              <input value={item.label} onChange={(e) => onEdit({ ...item, label: e.target.value })} placeholder="Label" className={field} />
-              <input value={item.href} onChange={(e) => onEdit({ ...item, href: e.target.value })} placeholder="/path" className={field} />
-            </>
-          )}
-        />
 
         {/* Page copy */}
         <h2 className="mt-8 font-display text-lg font-bold text-plum-900">Page copy</h2>
@@ -163,16 +154,12 @@ export default function SiteSettingsPage() {
             <textarea value={s.faqSubtitle} onChange={(e) => set("faqSubtitle", e.target.value)} rows={2} className={field} />
           </div>
           <div>
-            <label className={label}>About heading</label>
-            <input value={s.aboutHeading ?? "About Us"} onChange={(e) => set("aboutHeading", e.target.value)} className={field} />
+            <label className={label}>About Us heading</label>
+            <input value={s.aboutHeading} onChange={(e) => set("aboutHeading", e.target.value)} className={field} />
           </div>
           <div>
             <label className={label}>About intro paragraph</label>
             <textarea value={s.aboutIntro} onChange={(e) => set("aboutIntro", e.target.value)} rows={4} className={field} />
-          </div>
-          <div>
-            <label className={label}>About page main content</label>
-            <textarea value={s.aboutContent ?? ""} onChange={(e) => set("aboutContent", e.target.value)} rows={6} className={field} />
           </div>
           <div>
             <label className={label}>About “team” heading</label>

@@ -22,16 +22,14 @@ export default function CoursesPage() {
   const exam = searchParams.get("exam") ?? undefined;
   const { editMode } = useEdit();
   const settings = useSiteSettings();
-  const updateSettings = useUpdateSiteSettings();
 
   const courses = useCourses();
   const createCourse = useCreateCourse();
   const deleteCourse = useDeleteCourse();
+  const updateSettings = useUpdateSiteSettings();
+  const [newCatLabel, setNewCatLabel] = React.useState("");
 
   const [newTitle, setNewTitle] = React.useState("");
-  const [newPathwayLabel, setNewPathwayLabel] = React.useState("");
-  const [newChildLabel, setNewChildLabel] = React.useState("");
-  const [newChildParent, setNewChildParent] = React.useState(settings.examPathways[0]?.category ?? "");
 
   const pathways = settings.examPathways;
   const allFilters = [...pathways, ...MOCK_TEST_TYPES];
@@ -63,58 +61,6 @@ export default function CoursesPage() {
     router.push(`/courses/${c.slug}`);
   }
 
-  async function handleAddPathway() {
-    const label = newPathwayLabel.trim();
-    if (!label) return;
-    const next = {
-      ...settings,
-      examPathways: [
-        ...settings.examPathways,
-        { category: slugify(label), label, description: "" },
-      ],
-    };
-    await updateSettings.mutateAsync(next);
-    setNewPathwayLabel("");
-    setNewChildParent(slugify(label));
-  }
-
-  async function handleAddChildCategory() {
-    const label = newChildLabel.trim();
-    if (!label || !newChildParent) return;
-    const nextExamPathways = settings.examPathways.map((pathway) => {
-      if (pathway.category !== newChildParent) return pathway;
-      return {
-        ...pathway,
-        children: [
-          ...(pathway.children ?? []),
-          { category: slugify(label), label, description: "" },
-        ],
-      };
-    });
-    await updateSettings.mutateAsync({ ...settings, examPathways: nextExamPathways });
-    setNewChildLabel("");
-  }
-
-  async function handleDeletePathway(pathwayCategory: string, label: string) {
-    const confirmed = window.confirm(`Delete course category "${label}" and remove it from filters?`);
-    if (!confirmed) return;
-    const nextExamPathways = settings.examPathways.filter((pathway) => pathway.category !== pathwayCategory);
-    await updateSettings.mutateAsync({ ...settings, examPathways: nextExamPathways });
-  }
-
-  async function handleDeleteChildCategory(pathwayCategory: string, childCategory: string, label: string) {
-    const confirmed = window.confirm(`Delete course subcategory "${label}"?`);
-    if (!confirmed) return;
-    const nextExamPathways = settings.examPathways.map((pathway) => {
-      if (pathway.category !== pathwayCategory) return pathway;
-      return {
-        ...pathway,
-        children: (pathway.children ?? []).filter((child) => child.category !== childCategory),
-      };
-    });
-    await updateSettings.mutateAsync({ ...settings, examPathways: nextExamPathways });
-  }
-
   return (
     <Section>
       <Container>
@@ -138,151 +84,73 @@ export default function CoursesPage() {
             All
           </Link>
           {allFilters.map((pathway) => (
-            <div key={pathway.category} className="relative">
-              <Link
-                href={`/courses?exam=${pathway.category}`}
-                className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  activePathway?.category === pathway.category
-                    ? "bg-plum-900 text-white"
-                    : "bg-mist-100 text-plum-900 hover:bg-iris-300/40"
-                )}
-              >
-                {pathway.label}
-              </Link>
-              {editMode && (
-                <button
-                  onClick={() => {
-                    if ("children" in pathway && Array.isArray(pathway.children) && pathway.children.length > 0) {
-                      handleDeletePathway(pathway.category, pathway.label);
-                    } else {
-                      handleDeletePathway(pathway.category, pathway.label);
-                    }
-                  }}
-                  className="absolute -right-1 -top-1 rounded-full border border-rose-200 bg-white p-1 text-rose-700 shadow-sm hover:bg-rose-50"
-                  title="Delete category"
-                  aria-label={`Delete ${pathway.label}`}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
+            <Link
+              key={pathway.category}
+              href={`/courses?exam=${pathway.category}`}
+              className={cn(
+                "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                activePathway?.category === pathway.category
+                  ? "bg-plum-900 text-white"
+                  : "bg-mist-100 text-plum-900 hover:bg-iris-300/40"
               )}
-            </div>
+            >
+              {pathway.label}
+            </Link>
           ))}
         </div>
 
         {editMode && (
-          <div className="mt-6 space-y-3">
-            {pathways.map((pathway) => (
-              <div key={pathway.category} className="rounded-panel border border-iris-300/40 bg-white p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-plum-900">{pathway.label}</p>
-                    <p className="text-xs text-smoke-400">{pathway.category}</p>
-                  </div>
-                  <button
-                    onClick={() => handleDeletePathway(pathway.category, pathway.label)}
-                    className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-100"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
-                  </button>
-                </div>
-                {pathway.children && pathway.children.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {pathway.children.map((child) => (
-                      <div key={child.category} className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs text-plum-900">
-                        <span>{child.label}</span>
-                        <button
-                          onClick={() => handleDeleteChildCategory(pathway.category, child.category, child.label)}
-                          className="text-rose-700 hover:text-rose-800"
-                          title={`Delete ${child.label}`}
-                          aria-label={`Delete ${child.label}`}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {editMode && (
-          <div className="mx-auto mt-8 max-w-3xl space-y-4 rounded-[22px] border border-dashed border-violet-300 bg-violet-50/60 p-4 shadow-sm">
-            <div className="grid gap-3 md:grid-cols-[1fr_220px_auto] md:items-end">
-              <div>
-                <p className="text-sm font-semibold text-plum-900">New course title</p>
-                <input
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Course title"
-                  className="mt-2 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
-                />
-              </div>
-              <div>
-                <p className="sr-only">Category</p>
-                <select
-                  value={selectedCat}
-                  onChange={(e) => setNewCat(e.target.value)}
-                  className="mt-2 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
-                >
-                  {categoryOptions.map((o) => (
-                    <option key={o.category} value={o.category}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <Button className="h-[42px]" disabled={createCourse.isPending} onClick={handleCreate}>
-                <Plus className="h-4 w-4" /> Create &amp; edit
-              </Button>
+          <div className="mx-auto mt-8 flex max-w-2xl flex-wrap items-end gap-3 rounded-card border border-dashed border-royal-500/50 bg-mist-100/60 p-4">
+            <div className="min-w-[200px] flex-1">
+              <label className="text-sm font-semibold text-plum-900">New course title</label>
+              <input
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="Course title"
+                className="mt-1 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
+              />
             </div>
+            <select
+              value={selectedCat}
+              onChange={(e) => setNewCat(e.target.value)}
+              className="rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
+            >
+              {categoryOptions.map((o) => (
+                <option key={o.category} value={o.category}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <Button disabled={createCourse.isPending} onClick={handleCreate}>
+              <Plus className="h-4 w-4" /> Create & edit
+            </Button>
 
-            <div className="h-px bg-violet-200/80" />
-
-            <div className="grid gap-3 md:grid-cols-[1fr_220px_auto] md:items-end">
-              <div>
-                <p className="text-sm font-semibold text-plum-900">New course category</p>
+            <div className="flex w-full items-end gap-2 border-t border-iris-300/40 pt-3">
+              <div className="flex-1">
+                <label className="text-sm font-semibold text-plum-900">Add a category (tag)</label>
                 <input
-                  value={newPathwayLabel}
-                  onChange={(e) => setNewPathwayLabel(e.target.value)}
-                  placeholder="e.g. MDS Pathology"
-                  className="mt-2 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
+                  value={newCatLabel}
+                  onChange={(e) => setNewCatLabel(e.target.value)}
+                  placeholder="e.g. Cytopathology"
+                  className="mt-1 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
                 />
               </div>
-              <div className="hidden md:block" />
-              <Button className="h-[42px]" disabled={!newPathwayLabel.trim() || updateSettings.isPending} onClick={handleAddPathway}>
+              <Button
+                variant="outline"
+                disabled={!newCatLabel.trim() || updateSettings.isPending}
+                onClick={() => {
+                  const taken = new Set(pathways.map((p) => p.category));
+                  let slug = slugify(newCatLabel);
+                  let i = 2;
+                  while (taken.has(slug)) slug = `${slugify(newCatLabel)}-${i++}`;
+                  updateSettings.mutate({
+                    examPathways: [...pathways, { category: slug, label: newCatLabel.trim(), description: "" }],
+                  });
+                  setNewCat(slug);
+                  setNewCatLabel("");
+                }}
+              >
                 <Plus className="h-4 w-4" /> Add category
-              </Button>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-[1fr_220px_auto] md:items-end">
-              <div>
-                <p className="text-sm font-semibold text-plum-900">New subcategory</p>
-                <input
-                  value={newChildLabel}
-                  onChange={(e) => setNewChildLabel(e.target.value)}
-                  placeholder="e.g. Renal pathology"
-                  className="mt-2 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
-                />
-              </div>
-              <div>
-                <p className="sr-only">Parent category</p>
-                <select
-                  value={newChildParent}
-                  onChange={(e) => setNewChildParent(e.target.value)}
-                  className="mt-2 w-full rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm outline-none focus:border-royal-500"
-                >
-                  {pathways.map((pathway) => (
-                    <option key={pathway.category} value={pathway.category}>
-                      {pathway.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <Button className="h-[42px]" disabled={!newChildLabel.trim() || !newChildParent || updateSettings.isPending} onClick={handleAddChildCategory}>
-                <Plus className="h-4 w-4" /> Add subcategory
               </Button>
             </div>
           </div>

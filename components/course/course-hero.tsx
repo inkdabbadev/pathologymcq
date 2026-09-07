@@ -31,19 +31,9 @@ export function CourseHero({ course }: { course: Course }) {
             {course.tagline}
           </p>
 
-          {course.tags && course.tags.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {course.tags.map((tag) => (
-                <Badge key={tag} variant="default" className="normal-case">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
           <div className="mt-6 flex flex-wrap items-center gap-5">
             <div className="flex items-center gap-2 text-sm text-slate-700">
-              <Avatar name={course.faculty.name} size={32} imageUrl={course.faculty.avatarUrl} />
+              <Avatar name={course.faculty.name} size={32} />
               <div>
                 <p className="font-semibold text-plum-900">{course.faculty.name}</p>
                 <p className="text-xs text-smoke-400">{course.faculty.title}</p>
@@ -63,7 +53,7 @@ export function CourseHero({ course }: { course: Course }) {
         </div>
 
         <div className="relative aspect-[4/3] overflow-hidden rounded-hero shadow-lifted">
-          <Image src={course.imageUrl} alt="" fill className="object-cover" />
+          <Image src={course.imageUrl || "/mock/course-thumb-1.svg"} alt="" fill className="object-cover" />
         </div>
       </Container>
     </div>
