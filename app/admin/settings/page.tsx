@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/button";
 import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
+import { normalizeWhatsAppNumber, WHATSAPP_COUNTRY_CODE } from "@/lib/site/whatsapp";
 import {
-  normalizeWhatsAppNumber,
-  WHATSAPP_COUNTRY_CODE,
   type SiteSettings,
   type ShopCard,
   type ExamPathwaySetting,

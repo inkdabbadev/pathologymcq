@@ -7,22 +7,15 @@ import type { MockTestProduct } from "@/lib/mock/mock-test-products";
 import type { MockTestType } from "@/lib/mock/mock-test-types";
 import * as store from "@/lib/catalog/store";
 
-const CATALOG_STALE_TIME = 60_000;
-
 // Courses
 export function useCourses() {
-  return useQuery({
-    queryKey: ["courses"],
-    queryFn: async () => store.listCourses(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["courses"], queryFn: async () => store.listCourses() });
 }
 export function useCourse(slug: string) {
   return useQuery({
     queryKey: ["course", slug],
     queryFn: async () => store.getCourseBySlug(slug),
     enabled: Boolean(slug),
-    staleTime: CATALOG_STALE_TIME,
   });
 }
 export function useCreateCourse() {
@@ -53,11 +46,7 @@ export function useDeleteCourse() {
 
 // Bundles
 export function useBundles() {
-  return useQuery({
-    queryKey: ["bundles"],
-    queryFn: async () => store.listBundles(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["bundles"], queryFn: async () => store.listBundles() });
 }
 export function useCreateBundle() {
   const qc = useQueryClient();
@@ -84,11 +73,7 @@ export function useDeleteBundle() {
 
 // Hard copy books
 export function useBooks() {
-  return useQuery({
-    queryKey: ["books"],
-    queryFn: async () => store.listBooks(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["books"], queryFn: async () => store.listBooks() });
 }
 export function useCreateBook() {
   const qc = useQueryClient();
@@ -115,11 +100,7 @@ export function useDeleteBook() {
 
 // Mock tests
 export function useMockTests() {
-  return useQuery({
-    queryKey: ["mockTests"],
-    queryFn: async () => store.listMockTests(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["mockTests"], queryFn: async () => store.listMockTests() });
 }
 export function useCreateMockTest() {
   const qc = useQueryClient();
@@ -149,7 +130,6 @@ export function useMockCategories() {
   return useQuery({
     queryKey: ["mockCategories"],
     queryFn: async () => store.listMockCategories(),
-    staleTime: CATALOG_STALE_TIME,
   });
 }
 export function useCreateMockCategory() {
@@ -190,16 +170,12 @@ import type { FaqCategory } from "@/lib/mock/faq-categories";
 import type { StoredPracticeQuestion } from "@/lib/catalog/store";
 
 export function usePracticeTopics() {
-  return useQuery({
-    queryKey: ["practice_topics"],
-    queryFn: async () => store.listPracticeTopics(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["practice_topics"], queryFn: async () => store.listPracticeTopics() });
 }
 export function useCreatePracticeTopic() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { label: string; iconUrl?: string }) => store.createPracticeTopic(input),
+    mutationFn: async (input: { label: string }) => store.createPracticeTopic(input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["practice_topics"] }),
   });
 }
@@ -228,7 +204,6 @@ export function usePracticeQuestions(topicSlug: string) {
     queryKey: ["practice_questions", topicSlug],
     queryFn: async () => store.listPracticeQuestions(topicSlug),
     enabled: Boolean(topicSlug),
-    staleTime: CATALOG_STALE_TIME,
   });
 }
 export function useCreatePracticeQuestion() {
@@ -256,11 +231,7 @@ export function useDeletePracticeQuestion() {
 
 // ── Faculty ──────────────────────────────────────────────────────────────────
 export function useFaculty() {
-  return useQuery({
-    queryKey: ["faculty"],
-    queryFn: async () => store.listFaculty(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["faculty"], queryFn: async () => store.listFaculty() });
 }
 export function useCreateFaculty() {
   const qc = useQueryClient();
@@ -287,11 +258,7 @@ export function useDeleteFaculty() {
 
 // ── FAQ categories ───────────────────────────────────────────────────────────
 export function useFaqCategories() {
-  return useQuery({
-    queryKey: ["faq_categories"],
-    queryFn: async () => store.listFaqCategories(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  return useQuery({ queryKey: ["faq_categories"], queryFn: async () => store.listFaqCategories() });
 }
 export function useCreateFaqCategory() {
   const qc = useQueryClient();
@@ -316,16 +283,33 @@ export function useDeleteFaqCategory() {
   });
 }
 
+// ── Content pages (services + legal/support) ─────────────────────────────────
+import type { ContentPageDoc } from "@/lib/mock/pages";
+
+export function usePage(slug: string) {
+  return useQuery({
+    queryKey: ["page", slug],
+    queryFn: async () => store.getPageBySlug(slug),
+    enabled: Boolean(slug),
+  });
+}
+export function useUpdatePage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ slug, patch }: { slug: string; patch: Partial<ContentPageDoc> }) =>
+      store.updatePage(slug, patch),
+    onSuccess: (p) => {
+      qc.invalidateQueries({ queryKey: ["page", p.slug] });
+    },
+  });
+}
+
 // ── Site settings ────────────────────────────────────────────────────────────
 import type { SiteSettings } from "@/lib/site/defaults";
 import { DEFAULT_SETTINGS } from "@/lib/site/defaults";
 
 export function useSiteSettings(): SiteSettings {
-  const q = useQuery({
-    queryKey: ["site_settings"],
-    queryFn: async () => store.getSiteSettings(),
-    staleTime: CATALOG_STALE_TIME,
-  });
+  const q = useQuery({ queryKey: ["site_settings"], queryFn: async () => store.getSiteSettings(), staleTime: 60_000 });
   return q.data ?? DEFAULT_SETTINGS;
 }
 export function useUpdateSiteSettings() {

@@ -47,28 +47,21 @@ export interface SiteSettings {
   examPathways: ExamPathwaySetting[];
 }
 
-export const WHATSAPP_COUNTRY_CODE = "91";
-
-export function normalizeWhatsAppNumber(number: string | null | undefined): string {
-  const digits = (number ?? "").replace(/[^0-9]/g, "");
-  if (!digits) return `${WHATSAPP_COUNTRY_CODE}0000000000`;
-  return digits.startsWith(WHATSAPP_COUNTRY_CODE)
-    ? digits
-    : `${WHATSAPP_COUNTRY_CODE}${digits.replace(/^0+/, "")}`;
-}
-
 export const DEFAULT_SETTINGS: SiteSettings = {
   siteName: "Pathology MCQ",
   logoUrl: "",
   practiceLogoUrl: "",
-  whatsappNumber: "910000000000",
+  whatsappNumber: "917825890222",
   nav: [
-    { href: "/shop", label: "Shop" },
+    { href: "/", label: "Home" },
     { href: "/courses", label: "Courses" },
+    { href: "/shop", label: "Shop" },
     { href: "/practice", label: "Practice Questions" },
     { href: "/blog", label: "Blog" },
-    { href: "/about", label: "About / Faculty" },
+    { href: "/about", label: "About" },
+    { href: "/pricing", label: "Pricing" },
     { href: "/faq", label: "FAQ" },
+    { href: "/contact", label: "Contact" },
   ],
   footerCta: {
     heading: "Ready to master pathology?",
@@ -84,32 +77,39 @@ export const DEFAULT_SETTINGS: SiteSettings = {
         { href: "/courses", label: "Courses" },
         { href: "/practice", label: "Question Bank" },
         { href: "/mock-tests", label: "Mock Tests" },
+        { href: "/shop", label: "Shop" },
       ],
     },
     {
-      title: "Account",
+      title: "Services",
       links: [
-        { href: "/dashboard", label: "Dashboard" },
-        { href: "/my-courses", label: "My Courses" },
-        { href: "/account", label: "Account Settings" },
-        { href: "/login", label: "Log in" },
+        { href: "/services/frcpath-exam-preparation", label: "FRCPath Exam Preparation" },
+        { href: "/services/neet-ss-and-ini-ss-pathology-prep", label: "NEET-SS & INI-SS Prep" },
+        { href: "/services/pathology-mcq-practice-banks", label: "MCQ Practice Banks" },
+        { href: "/services/hard-copy-pathology-notes", label: "Hard-Copy Notes" },
+        { href: "/services/full-length-pathology-mock-tests", label: "Mock Tests" },
       ],
     },
     {
       title: "Company",
       links: [
-        { href: "/about", label: "About / Faculty" },
-        { href: "/#testimonials", label: "Testimonials" },
+        { href: "/about", label: "About" },
+        { href: "/pricing", label: "Pricing" },
         { href: "/faq", label: "FAQ" },
-        { href: "whatsapp", label: "Contact / WhatsApp" },
+        { href: "/contact", label: "Contact" },
+        { href: "whatsapp", label: "WhatsApp" },
       ],
     },
     {
-      title: "Legal",
+      title: "Legal & Support",
       links: [
         { href: "/privacy-policy", label: "Privacy Policy" },
-        { href: "/terms", label: "Terms of Service" },
-        { href: "/refund-policy", label: "Refund Policy" },
+        { href: "/terms-and-conditions", label: "Terms & Conditions" },
+        { href: "/cancellation-refund-policy", label: "Cancellation / Refund" },
+        { href: "/shipping-policy", label: "Shipping Policy" },
+        { href: "/disclaimer", label: "Disclaimer" },
+        { href: "/support", label: "Support" },
+        { href: "/delete-account", label: "Delete account" },
       ],
     },
   ],

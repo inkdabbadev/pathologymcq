@@ -25,6 +25,7 @@ type Kind =
   | "practice_questions"
   | "faculty"
   | "faq_categories"
+  | "pages"
   | "site_settings";
 
 function uid(prefix: string): string {
@@ -50,7 +51,7 @@ async function apiJson<T>(res: Response): Promise<T> {
 }
 
 async function fetchKind<T>(kind: Kind): Promise<T[]> {
-  const res = await fetch(`/api/catalog?kind=${kind}`);
+  const res = await fetch(`/api/catalog?kind=${kind}`, { cache: "no-store" });
   const { items } = await apiJson<{ items: T[] }>(res);
   return items ?? [];
 }
@@ -255,13 +256,12 @@ export async function deleteMockCategory(slugId: string): Promise<void> {
 export async function listPracticeTopics(): Promise<PracticeTopic[]> {
   return fetchKind<PracticeTopic>("practice_topics");
 }
-export async function createPracticeTopic(input: { label: string; iconUrl?: string }): Promise<PracticeTopic> {
+export async function createPracticeTopic(input: { label: string }): Promise<PracticeTopic> {
   const list = await listPracticeTopics();
   const taken = new Set(list.map((t) => t.slug));
   const topic: PracticeTopic = {
     slug: uniqueSlug(slugify(input.label), taken),
     label: input.label.trim() || "New topic",
-    iconUrl: input.iconUrl?.trim() || undefined,
   };
   await upsert("practice_topics", { id: topic.slug, slug: topic.slug, position: Date.now(), data: topic });
   return topic;
@@ -273,11 +273,7 @@ export async function updatePracticeTopic(
   const list = await listPracticeTopics();
   const cur = list.find((t) => t.slug === slug);
   if (!cur) throw new Error("Topic not found");
-  const next: PracticeTopic = {
-    ...cur,
-    label: patch.label !== undefined ? patch.label.trim() : cur.label,
-    iconUrl: patch.iconUrl !== undefined ? (patch.iconUrl?.trim() || undefined) : cur.iconUrl,
-  };
+  const next = { ...cur, label: patch.label !== undefined ? patch.label.trim() : cur.label };
   await upsert("practice_topics", { id: next.slug, slug: next.slug, data: next });
   return next;
 }
@@ -382,9 +378,33 @@ export async function deleteFaqCategory(slug: string): Promise<void> {
 
 export type { FaqItem, FaqCategory };
 
+// ── Content pages (services + legal/support) ──────────────────────────────────
+import type { ContentPageDoc } from "@/lib/mock/pages";
+
+export async function listPages(): Promise<ContentPageDoc[]> {
+  return fetchKind<ContentPageDoc>("pages");
+}
+export async function getPageBySlug(slug: string): Promise<ContentPageDoc | null> {
+  const list = await listPages();
+  return list.find((p) => p.slug === slug) ?? null;
+}
+export async function updatePage(
+  slug: string,
+  patch: Partial<ContentPageDoc>
+): Promise<ContentPageDoc> {
+  const list = await listPages();
+  const cur = list.find((p) => p.slug === slug);
+  if (!cur) throw new Error("Page not found");
+  const next = { ...cur, ...patch, slug: cur.slug } as ContentPageDoc;
+  await upsert("pages", { id: next.slug, slug: next.slug, data: next });
+  return next;
+}
+
+export type { ContentPageDoc };
+
 // ── Site settings (single doc) ───────────────────────────────────────────────
 import type { SiteSettings } from "@/lib/site/defaults";
-import { DEFAULT_SETTINGS, normalizeWhatsAppNumber } from "@/lib/site/defaults";
+import { DEFAULT_SETTINGS } from "@/lib/site/defaults";
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const rows = await fetchKind<SiteSettings>("site_settings");
@@ -392,11 +412,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 }
 export async function updateSiteSettings(patch: Partial<SiteSettings>): Promise<SiteSettings> {
   const cur = await getSiteSettings();
-  const next = {
-    ...cur,
-    ...patch,
-    whatsappNumber: normalizeWhatsAppNumber(patch.whatsappNumber ?? cur.whatsappNumber),
-  };
+  const next = { ...cur, ...patch };
   await upsert("site_settings", { id: "main", position: 0, data: next });
   return next;
 }

@@ -9,6 +9,7 @@ import { PRACTICE_TOPICS } from "@/lib/mock/practice-topics";
 import { PRACTICE_QUESTIONS } from "@/lib/mock/practice-questions";
 import { TEAM_MEMBERS } from "@/lib/mock/team";
 import { FAQ_CATEGORIES } from "@/lib/mock/faq-categories";
+import { PAGES } from "@/lib/mock/pages";
 import { DEFAULT_SETTINGS } from "@/lib/site/defaults";
 
 export type CatalogKind =
@@ -21,6 +22,7 @@ export type CatalogKind =
   | "practice_questions"
   | "faculty"
   | "faq_categories"
+  | "pages"
   | "site_settings";
 
 export const CATALOG_KINDS: CatalogKind[] = [
@@ -33,6 +35,7 @@ export const CATALOG_KINDS: CatalogKind[] = [
   "practice_questions",
   "faculty",
   "faq_categories",
+  "pages",
   "site_settings",
 ];
 
@@ -128,6 +131,15 @@ function seedRows(kind: CatalogKind): Row[] {
         category: null,
         position: i,
         data: c,
+      }));
+    case "pages":
+      return PAGES.map((p, i) => ({
+        kind,
+        id: p.slug,
+        slug: p.slug,
+        category: null,
+        position: i,
+        data: p,
       }));
     case "site_settings":
       return [{ kind, id: "main", slug: null, category: null, position: 0, data: DEFAULT_SETTINGS }];
