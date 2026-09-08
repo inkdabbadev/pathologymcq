@@ -49,8 +49,8 @@ export interface SiteSettings {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   siteName: "Pathology MCQ",
-  logoUrl: "",
-  practiceLogoUrl: "",
+  logoUrl: "/brand/pathology-mcq-mark.png",
+  practiceLogoUrl: "/brand/pathology-mcq-mark.png",
   whatsappNumber: "917825890222",
   nav: [
     { href: "/", label: "Home" },

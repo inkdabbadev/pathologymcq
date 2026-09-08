@@ -22,6 +22,7 @@ export function Navbar() {
   const logoutMutation = useLogout();
   const settings = useSiteSettings();
   const navLinks = settings.nav;
+  const logoUrl = settings.logoUrl || "/brand/pathology-mcq-mark.png";
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -39,13 +40,7 @@ export function Navbar() {
         )}
       >
         <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold text-plum-900">
-          {settings.logoUrl ? (
-            <img src={settings.logoUrl} alt={settings.siteName} className="h-8 w-8 rounded-full object-cover" />
-          ) : (
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-hema-700 to-eosin-500 text-sm text-white">
-              {settings.siteName.charAt(0) || "P"}
-            </span>
-          )}
+          <img src={logoUrl} alt={settings.siteName} className="h-8 w-8 rounded-md object-cover" />
           {settings.siteName}
         </Link>
 

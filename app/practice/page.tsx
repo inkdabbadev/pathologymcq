@@ -57,6 +57,7 @@ const TOPIC_ICONS: Record<string, LucideIcon> = {
 export default function PracticePage() {
   const { editMode } = useEdit();
   const settings = useSiteSettings();
+  const practiceLogoUrl = settings.practiceLogoUrl || settings.logoUrl || "/brand/pathology-mcq-mark.png";
   const topics = usePracticeTopics();
   const createTopic = useCreatePracticeTopic();
   const updateTopic = useUpdatePracticeTopic();
@@ -67,6 +68,11 @@ export default function PracticePage() {
     <Section>
       <Container>
         <div className="mx-auto max-w-2xl text-center">
+          <img
+            src={practiceLogoUrl}
+            alt="Practice Questions"
+            className="mx-auto mb-5 h-20 w-20 rounded-xl object-cover shadow-soft"
+          />
           <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">
             Practice Questions
           </h1>
