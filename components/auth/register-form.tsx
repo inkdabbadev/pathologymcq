@@ -100,20 +100,22 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
       </FormField>
 
       <div>
-        <label className="flex items-start gap-2 text-sm text-slate-700">
+        <label className="flex items-start gap-2 text-sm leading-relaxed text-slate-700">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-iris-300 text-royal-500"
+            className="mt-1 h-4 w-4 shrink-0 rounded border-iris-300 text-royal-500"
             {...register("agreeToTerms")}
           />
-          I agree to the{" "}
-          <Link href="/terms" className="font-medium text-rose-700">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy-policy" className="font-medium text-rose-700">
-            Privacy Policy
-          </Link>
+          <span>
+            I agree to the{" "}
+            <Link href="/terms-and-conditions" className="font-medium text-rose-700">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy-policy" className="font-medium text-rose-700">
+              Privacy Policy
+            </Link>
+          </span>
         </label>
         {errors.agreeToTerms && (
           <p className="mt-1 text-xs text-rose-700">{errors.agreeToTerms.message}</p>

@@ -48,6 +48,22 @@ export function Hero() {
             </Button>
           </div>
         </Reveal>
+
+        <Reveal delay={0.24}>
+          <div className="mt-12 grid w-full max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { label: "Always updated", body: "Revised to the latest classifications and guidelines" },
+              { label: "Slide-linked answers", body: "Explanations highlight the diagnostic region on the slide" },
+              { label: "Doubts answered same day", body: "Every query goes to a practising pathologist" },
+              { label: "4.9★ verified", body: "From pathologists in 25+ countries across five boards" },
+            ].map((c) => (
+              <div key={c.label} className="rounded-panel border border-iris-300/40 bg-white/70 p-3 text-left">
+                <p className="text-sm font-semibold text-plum-900">{c.label}</p>
+                <p className="mt-1 text-xs leading-snug text-slate-700">{c.body}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </Container>
     </div>
   );

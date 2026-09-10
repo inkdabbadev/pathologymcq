@@ -6,9 +6,9 @@ import { ImageIcon, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
-import { ImageCropUpload } from "@/components/ui/image-crop-upload";
 import { ShopProductCard } from "@/components/marketing/shop-product-card";
 import type { Product } from "@/lib/api/types";
+import { uploadImage } from "@/lib/blog/api";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useBooks, useCreateBook, useDeleteBook, useUpdateBook } from "@/lib/catalog/hooks";
 
@@ -21,6 +21,18 @@ function BookEditPanel({ book, onDone }: { book: Product; onDone: () => void }) 
   const [priceRupees, setPriceRupees] = React.useState(String(Math.round(book.priceCents / 100)));
   const [image, setImage] = React.useState(book.imageUrl);
   const [description, setDescription] = React.useState(book.description);
+  const [uploading, setUploading] = React.useState(false);
+
+  async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setUploading(true);
+    try {
+      setImage(await uploadImage(f));
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function save() {
     await update.mutateAsync({
@@ -41,7 +53,11 @@ function BookEditPanel({ book, onDone }: { book: Product; onDone: () => void }) 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt="" className="h-32 w-full object-cover" />
       </div>
-      <ImageCropUpload value={image} label="Change image" aspectRatio={1.2} onChange={setImage} />
+      <label className="inline-flex cursor-pointer items-center gap-1.5 self-start rounded-full border border-iris-300/60 px-3 py-1 text-xs text-plum-900 hover:border-royal-500">
+        <ImageIcon className="h-3.5 w-3.5" />
+        {uploading ? "Uploading…" : "Image"}
+        <input type="file" accept="image/*" className="hidden" onChange={onImage} />
+      </label>
       <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className={field} />
       <input
         type="number"
@@ -133,7 +149,7 @@ export default function HardCopyBooksPage() {
             editMode && editingId === book.id ? (
               <BookEditPanel key={book.id} book={book} onDone={() => setEditingId(null)} />
             ) : (
-              <div key={book.id} className="group relative">
+              <div key={book.id} className="group relative h-full">
                 <ShopProductCard product={book} />
                 {editMode && (
                   <div className="absolute right-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100">

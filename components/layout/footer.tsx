@@ -16,9 +16,9 @@ export function Footer() {
       : href;
 
   return (
-    <footer className="mt-24 border-t border-iris-300/30 bg-twilight-900 text-mist-100">
+    <footer className="mt-24 border-t border-iris-300/30 bg-plum-900 text-mist-100">
       <Container className="py-16">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-hero bg-gradient-to-br from-hema-700 to-plum-900 p-8 sm:p-12 md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-hero bg-gradient-to-br from-royal-500 to-hema-700 p-8 sm:p-12 md:flex-row md:items-center">
           <div>
             <h2 className="font-display text-2xl font-bold text-white sm:text-3xl">
               {s.footerCta.heading}

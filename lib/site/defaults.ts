@@ -64,10 +64,10 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     { href: "/contact", label: "Contact" },
   ],
   footerCta: {
-    heading: "Ready to master pathology?",
+    heading: "Take your pathology revision to the next level",
     subtext:
-      "Join thousands of trainees preparing for FRCPath, NEET-SS, INI-SS and MD/DNB with image-rich MCQs and mock tests built by faculty.",
-    buttonLabel: "Start practicing free",
+      "Not another question dump — a week-by-week plan with image-rich MCQs, virtual slides, structured notes and full-length mocks for FRCPath, NEET-SS, INI-SS, MD/DNB and APCP.",
+    buttonLabel: "Start learning for free",
     buttonHref: "/register",
   },
   footerColumns: [

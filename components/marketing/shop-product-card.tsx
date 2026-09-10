@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,11 @@ import { formatPrice } from "@/lib/format";
 
 export function ShopProductCard({ product }: { product: Product }) {
   const settings = useSiteSettings();
+  const [expanded, setExpanded] = React.useState(false);
+  const isLong = (product.description?.length ?? 0) > 180;
+
   return (
-    <div className="flex flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow">
+    <div className="flex h-full flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow">
       <div className="relative aspect-[3/2] overflow-hidden">
         <Image src={product.imageUrl || "/mock/course-thumb-2.svg"} alt="" fill className="object-cover" />
       </div>
@@ -19,7 +23,20 @@ export function ShopProductCard({ product }: { product: Product }) {
         <h3 className="font-display text-base font-semibold leading-snug text-plum-900">
           {product.name}
         </h3>
-        <p className="text-sm leading-relaxed text-slate-700">{product.description}</p>
+        <div>
+          <p className={`text-sm leading-relaxed text-slate-700 ${expanded ? "" : "line-clamp-4"}`}>
+            {product.description}
+          </p>
+          {isLong && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-1 text-sm font-semibold text-rose-700 hover:underline"
+            >
+              {expanded ? "Read less" : "Read more"}
+            </button>
+          )}
+        </div>
 
         {product.includes && (
           <ul className="flex flex-col gap-1 text-xs text-smoke-400">
