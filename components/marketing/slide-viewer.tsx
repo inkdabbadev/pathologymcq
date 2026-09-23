@@ -38,35 +38,6 @@ export interface SlideViewerHandle {
   isReady: () => boolean;
 }
 
-function firstDziTileUrl(dziUrl: string, xml: string): string | null {
-  const doc = new DOMParser().parseFromString(xml, "application/xml");
-  const image = Array.from(doc.getElementsByTagName("*")).find((node) => node.localName === "Image");
-  const size = Array.from(doc.getElementsByTagName("*")).find((node) => node.localName === "Size");
-  if (!image || !size) return null;
-
-  const width = Number(size.getAttribute("Width"));
-  const height = Number(size.getAttribute("Height"));
-  const format = image.getAttribute("Format") || "jpeg";
-  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
-
-  const absoluteDzi = new URL(dziUrl, window.location.href);
-  const fileName = decodeURIComponent(absoluteDzi.pathname.split("/").pop() || "").replace(/\.dzi$/i, "");
-  const derivedTileFolder = `${fileName}_files/`;
-  const tileFolder = image.getAttribute("Url") || derivedTileFolder;
-  const tileRoot = new URL(tileFolder.endsWith("/") ? tileFolder : `${tileFolder}/`, absoluteDzi);
-  const level = Math.ceil(Math.log2(Math.max(width, height)));
-  return new URL(`${level}/0_0.${format}`, tileRoot).toString();
-}
-
-function canLoadImage(url: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
-  });
-}
-
 function installOpenSeadragonConsoleFilter(OpenSeadragon: typeof OpenSeadragonNS) {
   const noisyAssertions = [
     "TileSource.getTileAtPoint",
@@ -104,7 +75,7 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
   }: SlideViewerProps,
   ref
 ) {
-  const REGIONS = regions ?? DEFAULT_SLIDE_REGIONS;
+  const REGIONS = regions && regions.length > 0 ? regions : DEFAULT_SLIDE_REGIONS;
   const rawTile = tileSource || DEFAULT_SLIDE_TILE_SOURCE;
   const isDzi = /\.dzi(\?|$)/i.test(rawTile) || rawTile.includes("/dzi/");
   const TILE_SOURCE = encodeURI(rawTile);
@@ -115,7 +86,6 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
   const [selected, setSelected] = React.useState("");
   const [ready, setReady] = React.useState(false);
   const [containerReady, setContainerReady] = React.useState(false);
-  const [loadError, setLoadError] = React.useState("");
   const activeRegion = REGIONS.find((region) => region.key === selected);
 
   React.useLayoutEffect(() => {
@@ -147,25 +117,8 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
 
     setReady(false);
     setSelected("");
-    setLoadError("");
 
     async function start() {
-      if (isDzi) {
-        const response = await fetch(TILE_SOURCE, { cache: "no-store" }).catch(() => null);
-        if (!response?.ok) {
-          if (!cancelled) setLoadError("DZI file could not be loaded.");
-          return;
-        }
-
-        const firstTile = firstDziTileUrl(TILE_SOURCE, await response.text());
-        if (!firstTile || !(await canLoadImage(firstTile))) {
-          if (!cancelled) {
-            setLoadError("DZI tiles were not found. Upload the DZI package with its *_files folder.");
-          }
-          return;
-        }
-      }
-
       const { default: OpenSeadragon } = await import("openseadragon");
       if (cancelled || !containerRef.current) return;
       installOpenSeadragonConsoleFilter(OpenSeadragon);
@@ -386,13 +339,8 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
       )}
       <div
         ref={containerRef}
-        className={[
-          "h-[420px] w-full bg-ink-900 sm:h-[520px]",
-          loadError ? "flex items-center justify-center p-6 text-center text-sm font-medium text-white" : "",
-        ].join(" ")}
-      >
-        {loadError}
-      </div>
+        className="h-[420px] w-full bg-ink-900 sm:h-[520px]"
+      />
     </div>
   );
 });

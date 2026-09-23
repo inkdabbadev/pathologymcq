@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, FileImage, FileUp, FolderUp, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
-import { createDziFromImage, uploadDziFile, uploadDziPackage } from "@/lib/blog/api";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
 import type { SiteSettings, ShopCard, ExamPathwaySetting, SlideRegionSetting } from "@/lib/site/defaults";
@@ -23,10 +22,6 @@ export default function SiteSettingsPage() {
   const update = useUpdateSiteSettings();
   const [s, setS] = React.useState<SiteSettings>(initial);
   const [savedAt, setSavedAt] = React.useState<string | null>(null);
-  const [slideUploadMsg, setSlideUploadMsg] = React.useState("");
-  const [tiling, setTiling] = React.useState(false);
-  const [uploadingDziFile, setUploadingDziFile] = React.useState(false);
-  const [uploadingDzi, setUploadingDzi] = React.useState(false);
   // Sync the form to persisted settings when they load (render-phase pattern:
   // `initial`'s identity changes once, from defaults to the fetched doc).
   const [syncedRef, setSyncedRef] = React.useState(initial);
@@ -55,66 +50,6 @@ export default function SiteSettingsPage() {
   async function save() {
     await update.mutateAsync(s);
     setSavedAt(new Date().toLocaleTimeString());
-  }
-
-  async function uploadHomeDzi(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setUploadingDzi(true);
-    setSlideUploadMsg("");
-    try {
-      const url = await uploadDziPackage(files);
-      const next = { ...s.homeSlide, tileSource: url, regions: [] };
-      set("homeSlide", next);
-      await update.mutateAsync({ homeSlide: next });
-      setSavedAt(new Date().toLocaleTimeString());
-      setSlideUploadMsg("DZI package uploaded. Finding coordinates were cleared.");
-    } catch (err) {
-      setSlideUploadMsg(err instanceof Error ? err.message : "DZI package upload failed.");
-    } finally {
-      setUploadingDzi(false);
-      e.target.value = "";
-    }
-  }
-
-  async function uploadHomeDziFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingDziFile(true);
-    setSlideUploadMsg("");
-    try {
-      const url = await uploadDziFile(file);
-      const next = { ...s.homeSlide, tileSource: url, regions: [] };
-      set("homeSlide", next);
-      await update.mutateAsync({ homeSlide: next });
-      setSavedAt(new Date().toLocaleTimeString());
-      setSlideUploadMsg("DZI file uploaded. It will render if its Url points to reachable tiles.");
-    } catch (err) {
-      setSlideUploadMsg(err instanceof Error ? err.message : "DZI file upload failed.");
-    } finally {
-      setUploadingDziFile(false);
-      e.target.value = "";
-    }
-  }
-
-  async function createHomeDziFromImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setTiling(true);
-    setSlideUploadMsg("Creating DZI tiles. Large images can take a little while...");
-    try {
-      const url = await createDziFromImage(file);
-      const next = { ...s.homeSlide, tileSource: url, regions: [] };
-      set("homeSlide", next);
-      await update.mutateAsync({ homeSlide: next });
-      setSavedAt(new Date().toLocaleTimeString());
-      setSlideUploadMsg("DZI tiles created. Finding coordinates were cleared.");
-    } catch (err) {
-      setSlideUploadMsg(err instanceof Error ? err.message : "DZI tile creation failed.");
-    } finally {
-      setTiling(false);
-      e.target.value = "";
-    }
   }
 
   return (
@@ -159,50 +94,9 @@ export default function SiteSettingsPage() {
             <label className={label}>Section subtitle</label>
             <textarea value={s.homeSlide.subtitle} onChange={(e) => set("homeSlide", { ...s.homeSlide, subtitle: e.target.value })} rows={2} className={field} />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className={label}>Slide title</label>
-              <input value={s.homeSlide.title} onChange={(e) => set("homeSlide", { ...s.homeSlide, title: e.target.value })} className={field} />
-            </div>
-            <div>
-              <label className={label}>Tile source (.dzi path)</label>
-              <input value={s.homeSlide.tileSource} onChange={(e) => set("homeSlide", { ...s.homeSlide, tileSource: e.target.value })} className={field} />
-              <label className="mt-2 mr-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-2 text-sm text-plum-900 hover:border-royal-500">
-                <FileImage className="h-4 w-4" />
-                {tiling ? "Creating..." : "Create DZI tiles"}
-                <input
-                  type="file"
-                  accept="image/*,.tif,.tiff"
-                  className="hidden"
-                  onChange={createHomeDziFromImage}
-                />
-              </label>
-              <label className="mt-2 mr-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-2 text-sm text-plum-900 hover:border-royal-500">
-                <FileUp className="h-4 w-4" />
-                {uploadingDziFile ? "Uploading..." : "Upload DZI file"}
-                <input
-                  type="file"
-                  accept=".dzi,application/xml,text/xml"
-                  className="hidden"
-                  onChange={uploadHomeDziFile}
-                />
-              </label>
-              <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-2 text-sm text-plum-900 hover:border-royal-500">
-                <FolderUp className="h-4 w-4" />
-                {uploadingDzi ? "Uploading..." : "Upload DZI package"}
-                <input
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={uploadHomeDzi}
-                  {...({ webkitdirectory: "", directory: "" } as React.InputHTMLAttributes<HTMLInputElement>)}
-                />
-              </label>
-              <p className="mt-1 text-xs text-smoke-400">
-                Use a single .dzi when its tile Url already points to hosted tiles. Use package upload when the local *_files tile folder should be uploaded too.
-              </p>
-              {slideUploadMsg && <p className="mt-1 text-xs font-medium text-royal-500">{slideUploadMsg}</p>}
-            </div>
+          <div>
+            <label className={label}>Slide title</label>
+            <input value={s.homeSlide.title} onChange={(e) => set("homeSlide", { ...s.homeSlide, title: e.target.value })} className={field} />
           </div>
           <div>
             <label className={label}>Slide caption</label>
@@ -228,8 +122,8 @@ export default function SiteSettingsPage() {
           )}
         />
         <p className="mt-2 text-xs text-smoke-400">
-          The slide image is a pre-tiled deep-zoom (.dzi) in <code>public/dzi/</code>. Point &ldquo;Tile source&rdquo; at a
-          different .dzi to swap slides; x/y/width/height are pixel coordinates on the source image for each finding.
+          The homepage uses the bundled pre-tiled deep-zoom slide at <code>public/dzi/Lichen planus.dzi</code>.
+          x/y/width/height are pixel coordinates on that source image for each finding.
         </p>
 
         {/* Page copy */}
