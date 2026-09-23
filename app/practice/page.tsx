@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Activity,
   Bone,
@@ -56,6 +57,8 @@ const TOPIC_ICONS: Record<string, LucideIcon> = {
 
 export default function PracticePage() {
   const { editMode } = useEdit();
+  const pathname = usePathname();
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/practice" : "/practice";
   const settings = useSiteSettings();
   const practiceLogoUrl = settings.practiceLogoUrl || settings.logoUrl || "/brand/pathology-mcq-mark.png";
   const topics = usePracticeTopics();
@@ -106,7 +109,7 @@ export default function PracticePage() {
             return (
               <div key={topic.slug} className="group relative">
                 <Link
-                  href={`/practice/${topic.slug}`}
+                  href={`${hrefBase}/${topic.slug}`}
                   className="flex flex-col items-center gap-3 rounded-card border border-iris-300/30 bg-white p-5 text-center shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-royal-500/50 hover:shadow-glow"
                 >
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-hema-700 to-plum-900 text-white transition-transform duration-300 group-hover:scale-110">

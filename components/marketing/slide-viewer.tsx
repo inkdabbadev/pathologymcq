@@ -4,7 +4,7 @@ import * as React from "react";
 import type OpenSeadragonNS from "openseadragon";
 import { LocateFixed, RotateCcw, ScanSearch } from "lucide-react";
 
-interface SlideRegion {
+export interface SlideRegion {
   key: string;
   label: string;
   x: number;
@@ -13,11 +13,7 @@ interface SlideRegion {
   height: number;
 }
 
-// NOTE: these pixel regions were provided calibrated against a 15360x10752
-// source image. The .dzi currently in public/dzi/ reports 21504x17664 (and a
-// different aspect ratio) — re-check these boxes against the real tiles once
-// verified; they may need recalibrating.
-const REGIONS: SlideRegion[] = [
+export const DEFAULT_SLIDE_REGIONS: SlideRegion[] = [
   { key: "thin", label: "Wedge shaped hypergranulosis", x: 8224, y: 11664, width: 2441, height: 1616 },
   { key: "lack", label: "Civatte body", x: 2610, y: 3586, width: 1290, height: 903 },
   { key: "noClear", label: "Superficial dermal inflammatory infiltrates", x: 11654, y: 12853, width: 1728, height: 2275 },
@@ -25,43 +21,175 @@ const REGIONS: SlideRegion[] = [
   { key: "b2", label: "Sawtoothing of rete ridges", x: 6596, y: 9404, width: 3737, height: 3617 },
 ];
 
-const TILE_SOURCE = encodeURI("/dzi/Lichen planus.dzi");
+export const DEFAULT_SLIDE_TILE_SOURCE = "/dzi/Lichen planus.dzi";
+export const DEFAULT_SLIDE_TITLE = "Lichen Planus — Thin Skin";
 
 interface SlideViewerProps {
   controls?: "dropdown" | "finder";
+  title?: string;
+  caption?: string;
+  tileSource?: string;
+  regions?: SlideRegion[];
 }
 
-export function SlideViewer({ controls = "dropdown" }: SlideViewerProps) {
+export interface SlideViewerHandle {
+  /** Capture the current pan/zoom view as an image-pixel rectangle (for defining a finding). */
+  captureViewport: () => Omit<SlideRegion, "key" | "label"> | null;
+  isReady: () => boolean;
+}
+
+function firstDziTileUrl(dziUrl: string, xml: string): string | null {
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const image = Array.from(doc.getElementsByTagName("*")).find((node) => node.localName === "Image");
+  const size = Array.from(doc.getElementsByTagName("*")).find((node) => node.localName === "Size");
+  if (!image || !size) return null;
+
+  const width = Number(size.getAttribute("Width"));
+  const height = Number(size.getAttribute("Height"));
+  const format = image.getAttribute("Format") || "jpeg";
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+
+  const absoluteDzi = new URL(dziUrl, window.location.href);
+  const fileName = decodeURIComponent(absoluteDzi.pathname.split("/").pop() || "").replace(/\.dzi$/i, "");
+  const derivedTileFolder = `${fileName}_files/`;
+  const tileFolder = image.getAttribute("Url") || derivedTileFolder;
+  const tileRoot = new URL(tileFolder.endsWith("/") ? tileFolder : `${tileFolder}/`, absoluteDzi);
+  const level = Math.ceil(Math.log2(Math.max(width, height)));
+  return new URL(`${level}/0_0.${format}`, tileRoot).toString();
+}
+
+function canLoadImage(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
+function installOpenSeadragonConsoleFilter(OpenSeadragon: typeof OpenSeadragonNS) {
+  const noisyAssertions = [
+    "TileSource.getTileAtPoint",
+    "TileCache.cacheTile",
+    "CacheRecord.revive",
+    "CacheRecord.addTile",
+    "getConversionPath",
+    "TileSource::downloadTileStart",
+    "World.getItemAt",
+    "Drawer._drawTile",
+    "TileCache.clearTilesFor",
+    "TileCache._unloadTile",
+    "Viewport._setContentBounds",
+    "OpenSeadragon.Spring.resetTo",
+  ];
+  const consoleTarget = window.console;
+  (OpenSeadragon as typeof OpenSeadragonNS & { console: Console }).console = {
+    ...consoleTarget,
+    assert(condition?: boolean, ...data: unknown[]) {
+      if (condition) return;
+      const message = data.map((item) => String(item)).join(" ");
+      if (noisyAssertions.some((pattern) => message.includes(pattern))) return;
+      consoleTarget.assert(condition, ...data);
+    },
+  };
+}
+
+export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>(function SlideViewer(
+  {
+    controls = "dropdown",
+    title = DEFAULT_SLIDE_TITLE,
+    caption,
+    tileSource = DEFAULT_SLIDE_TILE_SOURCE,
+    regions,
+  }: SlideViewerProps,
+  ref
+) {
+  const REGIONS = regions ?? DEFAULT_SLIDE_REGIONS;
+  const rawTile = tileSource || DEFAULT_SLIDE_TILE_SOURCE;
+  const isDzi = /\.dzi(\?|$)/i.test(rawTile) || rawTile.includes("/dzi/");
+  const TILE_SOURCE = encodeURI(rawTile);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const viewerRef = React.useRef<OpenSeadragonNS.Viewer | null>(null);
   const osdRef = React.useRef<typeof OpenSeadragonNS | null>(null);
   const overlayElRef = React.useRef<HTMLDivElement | null>(null);
   const [selected, setSelected] = React.useState("");
   const [ready, setReady] = React.useState(false);
+  const [containerReady, setContainerReady] = React.useState(false);
+  const [loadError, setLoadError] = React.useState("");
   const activeRegion = REGIONS.find((region) => region.key === selected);
 
+  React.useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const element = el;
+
+    function syncSize() {
+      setContainerReady(element.clientWidth > 0 && element.clientHeight > 0);
+    }
+
+    syncSize();
+    const resizeObserver = new ResizeObserver(syncSize);
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   React.useEffect(() => {
+    if (!containerReady) return;
+
     // openseadragon touches `document` as soon as its module is evaluated, so
     // it must only ever be imported client-side — a static top-level import
     // breaks server-side prerendering of this page.
     let cancelled = false;
     let viewer: OpenSeadragonNS.Viewer | null = null;
     let onAnimation: (() => void) | null = null;
+    let onOpen: (() => void) | null = null;
+    let onOpenFailed: (() => void) | null = null;
 
-    import("openseadragon").then(({ default: OpenSeadragon }) => {
+    setReady(false);
+    setSelected("");
+    setLoadError("");
+
+    async function start() {
+      if (isDzi) {
+        const response = await fetch(TILE_SOURCE, { cache: "no-store" }).catch(() => null);
+        if (!response?.ok) {
+          if (!cancelled) setLoadError("DZI file could not be loaded.");
+          return;
+        }
+
+        const firstTile = firstDziTileUrl(TILE_SOURCE, await response.text());
+        if (!firstTile || !(await canLoadImage(firstTile))) {
+          if (!cancelled) {
+            setLoadError("DZI tiles were not found. Upload the DZI package with its *_files folder.");
+          }
+          return;
+        }
+      }
+
+      const { default: OpenSeadragon } = await import("openseadragon");
       if (cancelled || !containerRef.current) return;
+      installOpenSeadragonConsoleFilter(OpenSeadragon);
 
       osdRef.current = OpenSeadragon;
       viewer = OpenSeadragon({
         element: containerRef.current,
         prefixUrl: "/openseadragon-images/",
-        tileSources: TILE_SOURCE,
+        tileSources: isDzi ? TILE_SOURCE : { type: "image", url: TILE_SOURCE },
+        drawer: "canvas",
         showNavigator: true,
         animationTime: 1.2,
         springStiffness: 6,
       });
       viewerRef.current = viewer;
-      setReady(true);
+
+      onOpen = () => {
+        if (!cancelled) setReady(true);
+      };
+      onOpenFailed = () => {
+        if (!cancelled) setReady(false);
+      };
+      viewer.addHandler("open", onOpen);
+      viewer.addHandler("open-failed", onOpenFailed);
 
       onAnimation = () => {
         const zoom = viewer!.viewport.getZoom(true);
@@ -79,24 +207,28 @@ export function SlideViewer({ controls = "dropdown" }: SlideViewerProps) {
         }
       };
       viewer.addHandler("animation", onAnimation);
-    });
+    }
+
+    start();
 
     return () => {
       cancelled = true;
       if (viewer) {
         if (onAnimation) viewer.removeHandler("animation", onAnimation);
+        if (onOpen) viewer.removeHandler("open", onOpen);
+        if (onOpenFailed) viewer.removeHandler("open-failed", onOpenFailed);
         viewer.destroy();
       }
       viewerRef.current = null;
       overlayElRef.current = null;
     };
-  }, []);
+  }, [TILE_SOURCE, isDzi, containerReady]);
 
   function handleSelect(key: string) {
     setSelected(key);
     const viewer = viewerRef.current;
     const OpenSeadragon = osdRef.current;
-    if (!viewer || !OpenSeadragon) return;
+    if (!viewer || !OpenSeadragon || !ready || viewer.world.getItemCount() === 0) return;
 
     if (overlayElRef.current) {
       try {
@@ -115,9 +247,18 @@ export function SlideViewer({ controls = "dropdown" }: SlideViewerProps) {
 
     const tiledImage = viewer.world.getItemAt(0);
     if (!tiledImage) return;
+    const size = tiledImage.getContentSize();
+    const x = Math.max(0, Math.min(region.x, Math.max(0, size.x - 1)));
+    const y = Math.max(0, Math.min(region.y, Math.max(0, size.y - 1)));
+    const width = Math.min(Math.max(1, region.width), size.x - x);
+    const height = Math.min(Math.max(1, region.height), size.y - y);
+    if (!Number.isFinite(x + y + width + height) || width <= 0 || height <= 0) {
+      setSelected("");
+      return;
+    }
 
     const rect = tiledImage.imageToViewportRectangle(
-      new OpenSeadragon.Rect(region.x, region.y, region.width, region.height)
+      new OpenSeadragon.Rect(x, y, width, height)
     );
     viewer.viewport.fitBounds(rect, false);
 
@@ -131,6 +272,33 @@ export function SlideViewer({ controls = "dropdown" }: SlideViewerProps) {
     overlayElRef.current = box;
   }
 
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      isReady: () => ready,
+      captureViewport: () => {
+        const viewer = viewerRef.current;
+        const OpenSeadragon = osdRef.current;
+        if (!viewer || !OpenSeadragon || !ready || viewer.world.getItemCount() === 0) return null;
+        const item = viewer.world.getItemAt(0);
+        if (!item) return null;
+        const bounds = viewer.viewport.getBounds(true);
+        const rect = item.viewportToImageRectangle(bounds);
+        const size = item.getContentSize();
+        const clamp = (v: number, max: number) => Math.max(0, Math.min(Math.round(v), max));
+        const x = clamp(rect.x, size.x);
+        const y = clamp(rect.y, size.y);
+        return {
+          x,
+          y,
+          width: clamp(rect.width, size.x - x),
+          height: clamp(rect.height, size.y - y),
+        };
+      },
+    }),
+    [ready]
+  );
+
   return (
     <div className="overflow-hidden rounded-hero border border-iris-300/30 bg-white shadow-lifted">
       <div className="flex flex-col gap-3 border-b border-iris-300/30 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -141,11 +309,11 @@ export function SlideViewer({ controls = "dropdown" }: SlideViewerProps) {
               Slide scout
             </p>
           )}
-          <p className="font-display text-lg font-semibold text-plum-900">Lichen Planus &mdash; Thin Skin</p>
+          <p className="font-display text-lg font-semibold text-plum-900">{title}</p>
           <p className="text-sm text-slate-700">
             {controls === "finder"
               ? activeRegion?.label ?? "Choose a finding target, then pan and zoom freely."
-              : "Pinch, scroll or drag to explore the slide - or jump straight to a labeled finding."}
+              : caption || "Pinch, scroll or drag to explore the slide - or jump straight to a labeled finding."}
           </p>
         </div>
         {controls === "finder" ? (
@@ -216,7 +384,15 @@ export function SlideViewer({ controls = "dropdown" }: SlideViewerProps) {
           })}
         </div>
       )}
-      <div ref={containerRef} className="h-[420px] w-full bg-ink-900 sm:h-[520px]" />
+      <div
+        ref={containerRef}
+        className={[
+          "h-[420px] w-full bg-ink-900 sm:h-[520px]",
+          loadError ? "flex items-center justify-center p-6 text-center text-sm font-medium text-white" : "",
+        ].join(" ")}
+      >
+        {loadError}
+      </div>
     </div>
   );
-}
+});

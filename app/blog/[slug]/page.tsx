@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
@@ -15,8 +15,10 @@ import { usePost } from "@/lib/blog/hooks";
 
 export default function BlogPostPage() {
   const params = useParams<{ slug: string }>();
+  const pathname = usePathname();
   const slug = params?.slug ?? "";
   const { editMode } = useEdit();
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/blog" : "/blog";
   const { data: post, isLoading, error } = usePost(slug);
 
   if (isLoading) {
@@ -36,7 +38,7 @@ export default function BlogPostPage() {
           <h1 className="font-display text-2xl font-bold text-plum-900">
             Post not found
           </h1>
-          <Link href="/blog" className="mt-4 inline-flex items-center gap-1 text-royal-500">
+          <Link href={hrefBase} className="mt-4 inline-flex items-center gap-1 text-royal-500">
             <ArrowLeft className="h-4 w-4" /> Back to blog
           </Link>
         </Container>
@@ -52,7 +54,7 @@ export default function BlogPostPage() {
   return (
     <Section>
       <Container className="max-w-3xl">
-        <Link href="/blog" className="inline-flex items-center gap-1 text-sm text-royal-500 hover:underline">
+        <Link href={hrefBase} className="inline-flex items-center gap-1 text-sm text-royal-500 hover:underline">
           <ArrowLeft className="h-4 w-4" /> Back to blog
         </Link>
 

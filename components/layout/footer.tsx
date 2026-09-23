@@ -5,15 +5,10 @@ import { Globe, Mail, Link2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { buildWaLink } from "@/components/marketing/whatsapp-button";
 import { useSiteSettings } from "@/lib/catalog/hooks";
 
 export function Footer() {
   const s = useSiteSettings();
-  const resolve = (href: string) =>
-    href === "whatsapp"
-      ? buildWaLink(s.whatsappNumber, "Hi! I have a question about Pathology MCQ.")
-      : href;
 
   return (
     <footer className="mt-24 border-t border-iris-300/30 bg-plum-900 text-mist-100">
@@ -37,10 +32,10 @@ export function Footer() {
                 {col.title}
               </h3>
               <ul className="mt-4 space-y-3">
-                {col.links.map((link) => (
+                {col.links.filter((link) => link.href !== "whatsapp").map((link) => (
                   <li key={link.label}>
                     <Link
-                      href={resolve(link.href)}
+                      href={link.href}
                       className="text-sm text-mist-100/80 transition-colors hover:text-white"
                     >
                       {link.label}

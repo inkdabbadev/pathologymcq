@@ -148,10 +148,41 @@ export async function deletePost(id: string): Promise<void> {
   await apiJson(res);
 }
 
-// Images -> Supabase storage via the admin upload route.
-export async function uploadImage(file: File): Promise<string> {
+// Files -> Supabase storage via the admin upload route.
+async function uploadFile(file: File): Promise<string> {
   const form = new FormData();
   form.append("file", file);
+  const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+  const { url } = await apiJson<{ url: string }>(res);
+  return url;
+}
+
+export async function uploadImage(file: File): Promise<string> {
+  return uploadFile(file);
+}
+
+export async function uploadDziFile(file: File): Promise<string> {
+  if (!/\.dzi$/i.test(file.name)) throw new Error("Choose a .dzi file.");
+  return uploadFile(file);
+}
+
+export async function createDziFromImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.append("mode", "dzi-from-image");
+  form.append("file", file);
+  const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+  const { url } = await apiJson<{ url: string }>(res);
+  return url;
+}
+
+export async function uploadDziPackage(files: FileList | File[]): Promise<string> {
+  const list = Array.from(files);
+  const form = new FormData();
+  for (const file of list) {
+    const relPath = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+    form.append("files", file);
+    form.append("paths", relPath);
+  }
   const res = await fetch("/api/admin/upload", { method: "POST", body: form });
   const { url } = await apiJson<{ url: string }>(res);
   return url;

@@ -6,10 +6,10 @@ import { Avatar } from "@/components/ui/avatar";
 import type { Course } from "@/lib/api/types";
 import { formatPrice } from "@/lib/format";
 
-export function CourseCard({ course }: { course: Course }) {
+export function CourseCard({ course, hrefBase = "/courses" }: { course: Course; hrefBase?: string }) {
   return (
     <Link
-      href={`/courses/${course.slug}`}
+      href={`${hrefBase}/${course.slug}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-royal-500/50 hover:shadow-glow"
     >
       <div className="relative aspect-[3/2] overflow-hidden">

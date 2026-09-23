@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 
 export interface AdminUser {
   username: string;
@@ -34,10 +35,12 @@ async function fetchAdmin(): Promise<AdminUser | null> {
 }
 
 export function EditProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [admin, setAdmin] = React.useState<AdminUser | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [editMode, setEditMode] = React.useState(false);
   const [preview, setPreview] = React.useState(false);
+  const isAdminPanel = Boolean(pathname?.startsWith("/admin") && pathname !== "/admin/login");
 
   React.useEffect(() => {
     let active = true;
@@ -85,7 +88,7 @@ export function EditProvider({ children }: { children: React.ReactNode }) {
   const value: EditContextValue = {
     admin,
     loading,
-    editMode: editMode && !preview,
+    editMode: Boolean(admin && isAdminPanel && editMode && !preview),
     setEditMode,
     preview,
     setPreview,

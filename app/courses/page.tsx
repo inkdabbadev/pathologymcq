@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
@@ -18,9 +18,11 @@ import { slugify } from "@/lib/blog/types";
 
 export default function CoursesPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const exam = searchParams.get("exam") ?? undefined;
   const { editMode } = useEdit();
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/courses" : "/courses";
   const settings = useSiteSettings();
 
   const courses = useCourses();
@@ -58,7 +60,7 @@ export default function CoursesPage() {
       category: selectedCat,
     });
     setNewTitle("");
-    router.push(`/courses/${c.slug}`);
+    router.push(`${hrefBase}/${c.slug}`);
   }
 
   return (
@@ -75,7 +77,7 @@ export default function CoursesPage() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
           <Link
-            href="/courses"
+            href={hrefBase}
             className={cn(
               "rounded-full px-4 py-2 text-sm font-medium transition-colors",
               !activePathway ? "bg-plum-900 text-white" : "bg-mist-100 text-plum-900 hover:bg-iris-300/40"
@@ -86,7 +88,7 @@ export default function CoursesPage() {
           {allFilters.map((pathway) => (
             <Link
               key={pathway.category}
-              href={`/courses?exam=${pathway.category}`}
+              href={`${hrefBase}?exam=${pathway.category}`}
               className={cn(
                 "rounded-full px-4 py-2 text-sm font-medium transition-colors",
                 activePathway?.category === pathway.category
@@ -160,7 +162,7 @@ export default function CoursesPage() {
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((course) => (
               <div key={course.id} className="group relative h-full">
-                <CourseCard course={course} />
+                <CourseCard course={course} hrefBase={hrefBase} />
                 {editMode && (
                   <button
                     onClick={() => {
@@ -181,7 +183,7 @@ export default function CoursesPage() {
             <p className="max-w-sm text-slate-700">
               No course in this pathway yet — {editMode ? "create one above." : "check back soon."}
             </p>
-            <Link href="/courses" className="font-semibold text-rose-700">
+            <Link href={hrefBase} className="font-semibold text-rose-700">
               View all courses
             </Link>
           </div>

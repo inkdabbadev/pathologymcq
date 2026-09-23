@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Layers, BookOpen, Tablet, Package, Sparkles, Search, Star, Users, Clock, Plus, Pencil, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
@@ -52,6 +52,8 @@ export default function ShopPage() {
 
   const { editMode } = useEdit();
   const router = useRouter();
+  const pathname = usePathname();
+  const adminBase = pathname?.startsWith("/admin") ? "/admin" : "";
   const settings = useSiteSettings();
   const createCourse = useCreateCourse();
   const deleteCourse = useDeleteCourse();
@@ -74,7 +76,7 @@ export default function ShopPage() {
     if (newType === "courses") {
       const c = await createCourse.mutateAsync({ title, category: courseCat });
       setNewTitle("");
-      router.push(`/courses/${c.slug}`);
+      router.push(`${adminBase}/courses/${c.slug}`);
     } else if (newType === "books") {
       await createBook.mutateAsync({ name: title });
       setNewTitle("");
@@ -103,22 +105,22 @@ export default function ShopPage() {
     const c: Item[] = courses.map((x) => ({
       id: x.id, kind: "courses", title: x.title, category: prettify(x.category),
       priceCents: x.priceCents, currency: x.currency, by: x.faculty?.name || "Pathology MCQ",
-      href: `/courses/${x.slug}`,
+      href: `${adminBase}/courses/${x.slug}`,
     }));
     const b: Item[] = books.map((x) => ({
       id: x.id, kind: "books", title: x.name, category: "Notes",
-      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: "/shop/hard-copy-books",
+      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: `${adminBase}/shop/hard-copy-books`,
     }));
     const u: Item[] = bundles.map((x) => ({
       id: x.id, kind: "bundles", title: x.name, category: "Bundle",
-      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: "/shop/bundles",
+      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: `${adminBase}/shop/bundles`,
     }));
     const m: Item[] = mocks.map((x) => ({
       id: x.id, kind: "mocks", title: x.title, category: prettify(x.category),
-      priceCents: 0, currency: "INR", by: "Pathology MCQ", href: "/mock-tests",
+      priceCents: 0, currency: "INR", by: "Pathology MCQ", href: `${adminBase}/mock-tests`,
     }));
     return [...c, ...b, ...u, ...m];
-  }, [coursesQ.data, booksQ.data, bundlesQ.data, mocksQ.data]);
+  }, [adminBase, coursesQ.data, booksQ.data, bundlesQ.data, mocksQ.data]);
 
   const counts = {
     all: items.length,

@@ -8,13 +8,15 @@ const FALLBACK = "/mock/course-thumb-2.svg";
 export function BlogPostCard({
   post,
   showDraft,
+  hrefBase = "/blog",
 }: {
   post: BlogPost;
   showDraft?: boolean;
+  hrefBase?: string;
 }) {
   return (
     <Link
-      href={`/blog/${post.slug}`}
+      href={`${hrefBase}/${post.slug}`}
       className="group flex flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
     >
       <div className="relative aspect-[3/2] overflow-hidden bg-mist-100">

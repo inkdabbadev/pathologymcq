@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 
@@ -21,7 +21,9 @@ import { useCourse } from "@/lib/catalog/hooks";
 
 export default function CoursePage() {
   const params = useParams<{ slug: string }>();
+  const pathname = usePathname();
   const slug = params?.slug ?? "";
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/courses" : "/courses";
   const { editMode } = useEdit();
   const { data: course, isLoading } = useCourse(slug);
 
@@ -40,7 +42,7 @@ export default function CoursePage() {
       <Section>
         <Container>
           <h1 className="font-display text-2xl font-bold text-plum-900">Course not found</h1>
-          <Link href="/courses" className="mt-4 inline-block text-royal-500 hover:underline">
+          <Link href={hrefBase} className="mt-4 inline-block text-royal-500 hover:underline">
             Back to courses
           </Link>
         </Container>

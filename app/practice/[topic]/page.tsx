@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
@@ -13,7 +13,9 @@ import { usePracticeTopics, usePracticeQuestions } from "@/lib/catalog/hooks";
 
 export default function PracticeTopicPage() {
   const params = useParams<{ topic: string }>();
+  const pathname = usePathname();
   const slug = params?.topic ?? "";
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/practice" : "/practice";
   const { editMode } = useEdit();
   const topics = usePracticeTopics();
   const questions = usePracticeQuestions(slug);
@@ -24,7 +26,7 @@ export default function PracticeTopicPage() {
     <Section>
       <Container>
         <Link
-          href="/practice"
+          href={hrefBase}
           className="inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-plum-900"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -49,7 +51,7 @@ export default function PracticeTopicPage() {
               <p className="text-slate-700">
                 This question set is still being written — check back soon.
               </p>
-              <Link href="/practice" className="font-semibold text-rose-700">
+              <Link href={hrefBase} className="font-semibold text-rose-700">
                 Back to all topics
               </Link>
             </div>

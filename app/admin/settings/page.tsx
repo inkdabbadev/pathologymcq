@@ -2,20 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, FileImage, FileUp, FolderUp, Plus, Save, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
-import { ImageCropUpload } from "@/components/ui/image-crop-upload";
+import { createDziFromImage, uploadDziFile, uploadDziPackage } from "@/lib/blog/api";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
-import { normalizeWhatsAppNumber, WHATSAPP_COUNTRY_CODE } from "@/lib/site/whatsapp";
-import {
-  type SiteSettings,
-  type ShopCard,
-  type ExamPathwaySetting,
-} from "@/lib/site/defaults";
+import type { SiteSettings, ShopCard, ExamPathwaySetting, SlideRegionSetting } from "@/lib/site/defaults";
 import { slugify } from "@/lib/blog/types";
 
 const field =
@@ -28,6 +23,10 @@ export default function SiteSettingsPage() {
   const update = useUpdateSiteSettings();
   const [s, setS] = React.useState<SiteSettings>(initial);
   const [savedAt, setSavedAt] = React.useState<string | null>(null);
+  const [slideUploadMsg, setSlideUploadMsg] = React.useState("");
+  const [tiling, setTiling] = React.useState(false);
+  const [uploadingDziFile, setUploadingDziFile] = React.useState(false);
+  const [uploadingDzi, setUploadingDzi] = React.useState(false);
   // Sync the form to persisted settings when they load (render-phase pattern:
   // `initial`'s identity changes once, from defaults to the fetched doc).
   const [syncedRef, setSyncedRef] = React.useState(initial);
@@ -54,8 +53,68 @@ export default function SiteSettingsPage() {
   }
 
   async function save() {
-    await update.mutateAsync({ ...s, whatsappNumber: normalizeWhatsAppNumber(s.whatsappNumber) });
+    await update.mutateAsync(s);
     setSavedAt(new Date().toLocaleTimeString());
+  }
+
+  async function uploadHomeDzi(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploadingDzi(true);
+    setSlideUploadMsg("");
+    try {
+      const url = await uploadDziPackage(files);
+      const next = { ...s.homeSlide, tileSource: url, regions: [] };
+      set("homeSlide", next);
+      await update.mutateAsync({ homeSlide: next });
+      setSavedAt(new Date().toLocaleTimeString());
+      setSlideUploadMsg("DZI package uploaded. Finding coordinates were cleared.");
+    } catch (err) {
+      setSlideUploadMsg(err instanceof Error ? err.message : "DZI package upload failed.");
+    } finally {
+      setUploadingDzi(false);
+      e.target.value = "";
+    }
+  }
+
+  async function uploadHomeDziFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingDziFile(true);
+    setSlideUploadMsg("");
+    try {
+      const url = await uploadDziFile(file);
+      const next = { ...s.homeSlide, tileSource: url, regions: [] };
+      set("homeSlide", next);
+      await update.mutateAsync({ homeSlide: next });
+      setSavedAt(new Date().toLocaleTimeString());
+      setSlideUploadMsg("DZI file uploaded. It will render if its Url points to reachable tiles.");
+    } catch (err) {
+      setSlideUploadMsg(err instanceof Error ? err.message : "DZI file upload failed.");
+    } finally {
+      setUploadingDziFile(false);
+      e.target.value = "";
+    }
+  }
+
+  async function createHomeDziFromImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setTiling(true);
+    setSlideUploadMsg("Creating DZI tiles. Large images can take a little while...");
+    try {
+      const url = await createDziFromImage(file);
+      const next = { ...s.homeSlide, tileSource: url, regions: [] };
+      set("homeSlide", next);
+      await update.mutateAsync({ homeSlide: next });
+      setSavedAt(new Date().toLocaleTimeString());
+      setSlideUploadMsg("DZI tiles created. Finding coordinates were cleared.");
+    } catch (err) {
+      setSlideUploadMsg(err instanceof Error ? err.message : "DZI tile creation failed.");
+    } finally {
+      setTiling(false);
+      e.target.value = "";
+    }
   }
 
   return (
@@ -83,59 +142,95 @@ export default function SiteSettingsPage() {
             <label className={label}>Site name</label>
             <input value={s.siteName} onChange={(e) => set("siteName", e.target.value)} className={field} />
           </div>
-          <div className="min-w-0">
-            <label className={label}>WhatsApp number</label>
-            <div className="mt-1 flex min-w-0">
-              <span className="inline-flex items-center rounded-l-panel border border-r-0 border-iris-300/60 bg-smoke-100 px-3 text-sm text-slate-700">
-                +{WHATSAPP_COUNTRY_CODE}
-              </span>
-              <input
-                value={s.whatsappNumber.replace(/[^0-9]/g, "").replace(/^91/, "")}
-                onChange={(e) =>
-                  set("whatsappNumber", `${WHATSAPP_COUNTRY_CODE}${e.target.value.replace(/[^0-9]/g, "")}`)
-                }
-                inputMode="numeric"
-                maxLength={10}
-                placeholder="9876543210"
-                className={`${field} mt-0 min-w-0 flex-1 rounded-l-none`}
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <label className={label}>Website logo URL</label>
-            <div className="mt-1">
-              <ImageCropUpload
-                value={s.logoUrl ?? ""}
-                label="Upload logo"
-                aspectRatio={3.2}
-                onChange={(url) => set("logoUrl", url)}
-              />
-              <input
-                value={s.logoUrl ?? ""}
-                onChange={(e) => set("logoUrl", e.target.value)}
-                className={`${field} mt-2`}
-                placeholder="https://.../logo.png"
-              />
-            </div>
-          </div>
-          <div className="sm:col-span-2">
-            <label className={label}>Practice page logo URL</label>
-            <div className="mt-1">
-              <ImageCropUpload
-                value={s.practiceLogoUrl ?? ""}
-                label="Upload practice logo"
-                aspectRatio={2.2}
-                onChange={(url) => set("practiceLogoUrl", url)}
-              />
-              <input
-                value={s.practiceLogoUrl ?? ""}
-                onChange={(e) => set("practiceLogoUrl", e.target.value)}
-                className={`${field} mt-2`}
-                placeholder="https://.../practice-logo.png"
-              />
-            </div>
+          <div>
+            <label className={label}>WhatsApp number (digits, incl. country code)</label>
+            <input value={s.whatsappNumber} onChange={(e) => set("whatsappNumber", e.target.value.replace(/[^0-9]/g, ""))} className={field} />
           </div>
         </div>
+
+        {/* Home slide viewer */}
+        <h2 className="mt-8 font-display text-lg font-bold text-plum-900">Home slide viewer</h2>
+        <div className="mt-3 grid gap-4">
+          <div>
+            <label className={label}>Section heading</label>
+            <input value={s.homeSlide.heading} onChange={(e) => set("homeSlide", { ...s.homeSlide, heading: e.target.value })} className={field} />
+          </div>
+          <div>
+            <label className={label}>Section subtitle</label>
+            <textarea value={s.homeSlide.subtitle} onChange={(e) => set("homeSlide", { ...s.homeSlide, subtitle: e.target.value })} rows={2} className={field} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className={label}>Slide title</label>
+              <input value={s.homeSlide.title} onChange={(e) => set("homeSlide", { ...s.homeSlide, title: e.target.value })} className={field} />
+            </div>
+            <div>
+              <label className={label}>Tile source (.dzi path)</label>
+              <input value={s.homeSlide.tileSource} onChange={(e) => set("homeSlide", { ...s.homeSlide, tileSource: e.target.value })} className={field} />
+              <label className="mt-2 mr-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-2 text-sm text-plum-900 hover:border-royal-500">
+                <FileImage className="h-4 w-4" />
+                {tiling ? "Creating..." : "Create DZI tiles"}
+                <input
+                  type="file"
+                  accept="image/*,.tif,.tiff"
+                  className="hidden"
+                  onChange={createHomeDziFromImage}
+                />
+              </label>
+              <label className="mt-2 mr-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-2 text-sm text-plum-900 hover:border-royal-500">
+                <FileUp className="h-4 w-4" />
+                {uploadingDziFile ? "Uploading..." : "Upload DZI file"}
+                <input
+                  type="file"
+                  accept=".dzi,application/xml,text/xml"
+                  className="hidden"
+                  onChange={uploadHomeDziFile}
+                />
+              </label>
+              <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-iris-300/60 bg-white px-3 py-2 text-sm text-plum-900 hover:border-royal-500">
+                <FolderUp className="h-4 w-4" />
+                {uploadingDzi ? "Uploading..." : "Upload DZI package"}
+                <input
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={uploadHomeDzi}
+                  {...({ webkitdirectory: "", directory: "" } as React.InputHTMLAttributes<HTMLInputElement>)}
+                />
+              </label>
+              <p className="mt-1 text-xs text-smoke-400">
+                Use a single .dzi when its tile Url already points to hosted tiles. Use package upload when the local *_files tile folder should be uploaded too.
+              </p>
+              {slideUploadMsg && <p className="mt-1 text-xs font-medium text-royal-500">{slideUploadMsg}</p>}
+            </div>
+          </div>
+          <div>
+            <label className={label}>Slide caption</label>
+            <input value={s.homeSlide.caption} onChange={(e) => set("homeSlide", { ...s.homeSlide, caption: e.target.value })} className={field} />
+          </div>
+        </div>
+        <SectionEditor
+          title="Slide findings (labeled regions)"
+          items={s.homeSlide.regions}
+          onChange={(regions) => set("homeSlide", { ...s.homeSlide, regions })}
+          empty={{ key: "", label: "New finding", x: 0, y: 0, width: 1000, height: 1000 } as SlideRegionSetting}
+          onAddFinalize={(item) => (item.key ? item : { ...item, key: `r${Date.now()}` })}
+          render={(item, onEdit) => (
+            <>
+              <input value={item.label} onChange={(e) => onEdit({ ...item, label: e.target.value })} placeholder="Finding label" className={field} />
+              <div className="grid grid-cols-4 gap-2">
+                <input type="number" value={item.x} onChange={(e) => onEdit({ ...item, x: Number(e.target.value) })} placeholder="x" className={field} />
+                <input type="number" value={item.y} onChange={(e) => onEdit({ ...item, y: Number(e.target.value) })} placeholder="y" className={field} />
+                <input type="number" value={item.width} onChange={(e) => onEdit({ ...item, width: Number(e.target.value) })} placeholder="w" className={field} />
+                <input type="number" value={item.height} onChange={(e) => onEdit({ ...item, height: Number(e.target.value) })} placeholder="h" className={field} />
+              </div>
+            </>
+          )}
+        />
+        <p className="mt-2 text-xs text-smoke-400">
+          The slide image is a pre-tiled deep-zoom (.dzi) in <code>public/dzi/</code>. Point &ldquo;Tile source&rdquo; at a
+          different .dzi to swap slides; x/y/width/height are pixel coordinates on the source image for each finding.
+        </p>
 
         {/* Page copy */}
         <h2 className="mt-8 font-display text-lg font-bold text-plum-900">Page copy</h2>
@@ -215,7 +310,7 @@ export default function SiteSettingsPage() {
         </div>
         <p className="mt-4 text-sm text-slate-700">
           Footer columns are advanced — tell me if you want a full column editor here. For now, brand, CTA,
-          copyright and the WhatsApp link update live.
+          copyright, and the WhatsApp number update live.
         </p>
 
         {/* Exam pathways */}

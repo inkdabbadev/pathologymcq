@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FolderOpen, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
@@ -18,6 +19,8 @@ import {
 
 export default function BlogIndexPage() {
   const { editMode } = useEdit();
+  const pathname = usePathname();
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/blog" : "/blog";
   const categories = useCategories();
   const posts = usePosts(); // all (published, or incl. drafts for admin) — for counts
   const createCategory = useCreateCategory();
@@ -85,7 +88,7 @@ export default function BlogIndexPage() {
           {categories.data?.map((c) => (
             <div key={c.id} className="group relative">
               <Link
-                href={`/blog/category/${c.slug}`}
+                href={`${hrefBase}/category/${c.slug}`}
                 className="flex h-full flex-col gap-3 rounded-card border border-iris-300/30 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-hema-700 to-eosin-500 text-white">

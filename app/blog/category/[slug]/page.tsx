@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, ImageIcon, Plus, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
@@ -17,9 +17,11 @@ const FALLBACK = "/mock/course-thumb-2.svg";
 
 export default function CategoryPage() {
   const params = useParams<{ slug: string }>();
+  const pathname = usePathname();
   const slug = params?.slug ?? "";
   const router = useRouter();
   const { editMode } = useEdit();
+  const hrefBase = pathname?.startsWith("/admin") ? "/admin/blog" : "/blog";
 
   const category = useCategory(slug);
   const posts = usePosts(slug);
@@ -60,7 +62,7 @@ export default function CategoryPage() {
           body: JSON.stringify({ cover_image: url }),
         });
       }
-      router.push(`/blog/${post.slug}`);
+      router.push(`${hrefBase}/${post.slug}`);
     } catch (e) {
       alert((e as Error).message);
     } finally {
@@ -72,7 +74,7 @@ export default function CategoryPage() {
     <Section>
       <Container>
         <Link
-          href="/blog"
+          href={hrefBase}
           className="inline-flex items-center gap-1 text-sm text-royal-500 hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> All categories
@@ -132,7 +134,7 @@ export default function CategoryPage() {
           {pageItems.map((p) => (
             <div key={p.id} className="group relative">
               <Link
-                href={`/blog/${p.slug}`}
+                href={`${hrefBase}/${p.slug}`}
                 className="flex h-full flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
               >
                 <div className="relative aspect-[3/2] overflow-hidden bg-mist-100">

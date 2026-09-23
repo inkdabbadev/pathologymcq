@@ -11,7 +11,7 @@ import { TestimonialCard } from "@/components/marketing/testimonial-card";
 import { CtaBand } from "@/components/marketing/cta-band";
 import { FacultyStrip } from "@/components/marketing/faculty-strip";
 import { BlogTeaser } from "@/components/marketing/blog-teaser";
-import { SlideViewer } from "@/components/marketing/slide-viewer";
+import { HomeSlideSection } from "@/components/marketing/home-slide-section";
 import { getFeaturedCourses, getTestimonials } from "@/lib/api/content";
 
 const BOARDS = ["FRCPath", "NEET-SS", "INI-SS", "MD / DNB", "DM Fellowships", "APCP"];
@@ -87,25 +87,8 @@ export default async function Home() {
         </Container>
       </Section>
 
-      {/* Zoomable slide section (kept) */}
-      <Section ambient>
-        <Container>
-          <Reveal>
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="font-display text-3xl font-bold text-plum-900 sm:text-4xl">
-                Explore a real histology slide
-              </h2>
-              <p className="mt-3 text-slate-700">
-                The same zoomable microscopy viewer used throughout our question bank &mdash;
-                pan, zoom, and jump to labeled findings.
-              </p>
-            </div>
-          </Reveal>
-          <Reveal delay={0.08} className="mt-10 block">
-            <SlideViewer />
-          </Reveal>
-        </Container>
-      </Section>
+      {/* Zoomable slide section (admin-editable via settings.homeSlide) */}
+      <HomeSlideSection />
 
       {/* The Plan */}
       <Section>

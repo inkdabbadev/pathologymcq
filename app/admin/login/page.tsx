@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
   const [busy, setBusy] = React.useState(false);
 
   React.useEffect(() => {
-    if (admin) router.replace("/");
+    if (admin) router.replace("/admin");
   }, [admin, router]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
       setError(res.error);
       return;
     }
-    router.replace("/");
+    router.replace("/admin");
   }
 
   return (
@@ -39,11 +39,11 @@ export default function AdminLoginPage() {
           Admin
         </p>
         <h1 className="mt-1 font-display text-2xl font-bold text-plum-900">
-          Sign in to edit
+          Sign in to admin
         </h1>
         <p className="mt-2 text-sm text-slate-700">
-          Signing in unlocks in-place editing across the site. Normal visitors
-          never see the editing tools.
+          Content changes now happen in the dedicated admin panel. The public
+          site remains read-only.
         </p>
 
 

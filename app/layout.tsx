@@ -2,12 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 
 import "./globals.css";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { WhatsAppFloat } from "@/components/marketing/whatsapp-float";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { EditProvider } from "@/lib/edit/edit-context";
-import { AdminBar } from "@/components/admin/admin-bar";
+import { SiteChrome } from "@/components/layout/site-chrome";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -43,11 +40,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-canvas text-ink-900">
         <QueryProvider>
           <EditProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <WhatsAppFloat />
-            <AdminBar />
+            <SiteChrome>{children}</SiteChrome>
           </EditProvider>
         </QueryProvider>
       </body>

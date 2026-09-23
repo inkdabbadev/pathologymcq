@@ -26,11 +26,29 @@ export interface ExamPathwaySetting {
   children?: ExamPathwayChild[];
 }
 
+export interface SlideRegionSetting {
+  key: string;
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+export interface HomeSlide {
+  heading: string;
+  subtitle: string;
+  title: string;
+  caption: string;
+  tileSource: string;
+  regions: SlideRegionSetting[];
+}
+
 export interface SiteSettings {
   siteName: string;
   logoUrl?: string;
   practiceLogoUrl?: string;
   whatsappNumber: string;
+  homeSlide: HomeSlide;
   nav: NavLink[];
   footerCta: { heading: string; subtext: string; buttonLabel: string; buttonHref: string };
   footerColumns: FooterColumn[];
@@ -52,6 +70,21 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   logoUrl: "/brand/pathology-mcq-mark.png",
   practiceLogoUrl: "/brand/pathology-mcq-mark.png",
   whatsappNumber: "917825890222",
+  homeSlide: {
+    heading: "Explore a real histology slide",
+    subtitle:
+      "The same zoomable microscopy viewer used throughout our question bank — pan, zoom, and jump to labeled findings.",
+    title: "Lichen Planus — Thin Skin",
+    caption: "Pinch, scroll or drag to explore the slide - or jump straight to a labeled finding.",
+    tileSource: "/dzi/Lichen planus.dzi",
+    regions: [
+      { key: "thin", label: "Wedge shaped hypergranulosis", x: 8224, y: 11664, width: 2441, height: 1616 },
+      { key: "lack", label: "Civatte body", x: 2610, y: 3586, width: 1290, height: 903 },
+      { key: "noClear", label: "Superficial dermal inflammatory infiltrates", x: 11654, y: 12853, width: 1728, height: 2275 },
+      { key: "a1", label: "Melanin pigment incontinence", x: 13491, y: 14148, width: 2345, height: 1768 },
+      { key: "b2", label: "Sawtoothing of rete ridges", x: 6596, y: 9404, width: 3737, height: 3617 },
+    ],
+  },
   nav: [
     { href: "/", label: "Home" },
     { href: "/courses", label: "Courses" },
@@ -97,7 +130,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
         { href: "/pricing", label: "Pricing" },
         { href: "/faq", label: "FAQ" },
         { href: "/contact", label: "Contact" },
-        { href: "whatsapp", label: "WhatsApp" },
       ],
     },
     {
