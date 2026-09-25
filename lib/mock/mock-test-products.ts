@@ -8,6 +8,8 @@ export interface MockTestProduct {
   examPattern: "Mock Test" | "Mini-Mock Test";
   questionCount: number;
   imageUrl: string;
+  /** Where the access button sends visitors. */
+  externalUrl?: string;
 }
 
 const THUMBS = [

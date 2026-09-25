@@ -17,7 +17,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       <main className="flex-1">{children}</main>
       {!isAdmin && <Footer />}
       {!isAdmin && <WhatsAppFloat />}
-      <AdminBar />
+      {!isAdmin && <AdminBar />}
     </>
   );
 }

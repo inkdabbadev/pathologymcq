@@ -15,9 +15,11 @@ import type { PracticeQuestion } from "@/lib/api/types";
 type Stage = "email" | "quiz" | "complete";
 
 export function PracticeQuiz({
+  topicSlug,
   topicLabel,
   questions,
 }: {
+  topicSlug: string;
   topicLabel: string;
   questions: PracticeQuestion[];
 }) {
@@ -25,6 +27,7 @@ export function PracticeQuiz({
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [selected, setSelected] = React.useState<number | null>(null);
   const [score, setScore] = React.useState(0);
+  const [email, setEmail] = React.useState("");
 
   const {
     register,
@@ -32,10 +35,8 @@ export function PracticeQuiz({
     formState: { errors },
   } = useForm<PracticeEmailValues>({ resolver: zodResolver(practiceEmailSchema) });
 
-  const onSubmitEmail = () => {
-    // No backend is connected yet — this simply unlocks the question set for
-    // this session. Capturing the email for follow-up practice reminders
-    // lands once the platform's email/CRM integration is wired up.
+  const onSubmitEmail = (values: PracticeEmailValues) => {
+    setEmail(values.email);
     setStage("quiz");
   };
 
@@ -51,6 +52,12 @@ export function PracticeQuiz({
 
   function handleNext() {
     if (isLast) {
+      // The last answer was already counted in handleSelect, so score is final.
+      void fetch("/api/practice/attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, topicSlug, topicLabel, score, total: questions.length }),
+      }).catch(() => {});
       setStage("complete");
       return;
     }

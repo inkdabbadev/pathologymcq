@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Pencil, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Plus, Save, Trash2 } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
@@ -28,6 +28,16 @@ function CategoryItemsEditor({ category }: { category: FaqCategory }) {
   const [items, setItems] = React.useState<FaqItem[]>(category.items.map((i) => ({ ...i })));
   const [savedAt, setSavedAt] = React.useState<string | null>(null);
 
+  function move(i: number, dir: -1 | 1) {
+    setItems((a) => {
+      const j = i + dir;
+      if (j < 0 || j >= a.length) return a;
+      const next = [...a];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   async function save() {
     await update.mutateAsync({
       slug: category.slug,
@@ -48,7 +58,25 @@ function CategoryItemsEditor({ category }: { category: FaqCategory }) {
               className="flex-1 rounded-panel border border-iris-300/60 bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-royal-500"
             />
             <button
-              onClick={() => setItems((a) => a.filter((_, j) => j !== i))}
+              onClick={() => move(i, -1)}
+              disabled={i === 0}
+              className="rounded-md p-1.5 text-smoke-400 hover:text-royal-500 disabled:opacity-30"
+              title="Move up"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => move(i, 1)}
+              disabled={i === items.length - 1}
+              className="rounded-md p-1.5 text-smoke-400 hover:text-royal-500 disabled:opacity-30"
+              title="Move down"
+            >
+              <ArrowDown className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => {
+                if (window.confirm("Delete this question?")) setItems((a) => a.filter((_, j) => j !== i));
+              }}
               className="rounded-md p-1.5 text-smoke-400 hover:text-rose-700"
               title="Remove"
             >

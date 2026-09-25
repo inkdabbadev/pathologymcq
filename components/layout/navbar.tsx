@@ -10,7 +10,6 @@ import { Menu, ShoppingBag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/layout/cart-drawer";
-import { useAuthSession, useLogout } from "@/lib/auth/use-auth";
 import { useSiteSettings } from "@/lib/catalog/hooks";
 
 export function Navbar() {
@@ -18,8 +17,6 @@ export function Navbar() {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [cartOpen, setCartOpen] = React.useState(false);
-  const { data: user } = useAuthSession();
-  const logoutMutation = useLogout();
   const settings = useSiteSettings();
   const navLinks = settings.nav;
   const logoUrl = settings.logoUrl || "/brand/pathology-mcq-mark.png";
@@ -83,30 +80,9 @@ export function Navbar() {
           </button>
           <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
 
-          {user ? (
-            <div className="hidden items-center gap-2 sm:flex">
-              <span className="px-2 text-sm font-medium text-plum-900">
-                {user.name || user.email}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => logoutMutation.mutate()}
-                disabled={logoutMutation.isPending}
-              >
-                Log out
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-                <Link href="/login">Log in</Link>
-              </Button>
-              <Button asChild size="sm" className="hidden sm:inline-flex">
-                <Link href="/register">Get started</Link>
-              </Button>
-            </>
-          )}
+          <Button asChild size="sm" className="hidden sm:inline-flex">
+            <Link href="/practice">Try free MCQs</Link>
+          </Button>
 
           <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
             <Dialog.Trigger asChild>
@@ -166,36 +142,11 @@ export function Navbar() {
                       </nav>
 
                       <div className="mt-auto flex flex-col gap-3 pt-8">
-                        {user ? (
-                          <>
-                            <p className="px-1 text-sm font-medium text-plum-900">
-                              {user.name || user.email}
-                            </p>
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                logoutMutation.mutate();
-                                setMobileOpen(false);
-                              }}
-                              disabled={logoutMutation.isPending}
-                            >
-                              Log out
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button asChild variant="outline">
-                              <Link href="/login" onClick={() => setMobileOpen(false)}>
-                                Log in
-                              </Link>
-                            </Button>
-                            <Button asChild>
-                              <Link href="/register" onClick={() => setMobileOpen(false)}>
-                                Get started
-                              </Link>
-                            </Button>
-                          </>
-                        )}
+                        <Button asChild>
+                          <Link href="/practice" onClick={() => setMobileOpen(false)}>
+                            Try free MCQs
+                          </Link>
+                        </Button>
                       </div>
                     </motion.div>
                   </Dialog.Content>

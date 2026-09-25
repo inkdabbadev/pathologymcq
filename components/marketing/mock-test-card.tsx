@@ -22,7 +22,13 @@ export function MockTestCard({ product }: { product: MockTestProduct }) {
           <p className="mt-1 text-xs text-smoke-400">{product.questionCount} questions</p>
         </div>
         <Button asChild className="mt-auto w-full text-xs sm:text-sm">
-          <Link href="/login?redirect=/mock-tests">Access {product.shortLabel} here</Link>
+          {product.externalUrl ? (
+            <a href={product.externalUrl} target="_blank" rel="noopener noreferrer">
+              Access {product.shortLabel} here
+            </a>
+          ) : (
+            <Link href="/mock-tests">Access {product.shortLabel} here</Link>
+          )}
         </Button>
       </div>
     </div>

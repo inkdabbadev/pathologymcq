@@ -36,7 +36,11 @@ export function StickyEnrollBar({ course }: { course: Course }) {
               </p>
             </div>
             <Button asChild size="lg" className="shrink-0">
-              <Link href={`/register?redirect=/courses/${course.slug}`}>Enroll now</Link>
+              {course.externalUrl ? (
+                <a href={course.externalUrl} target="_blank" rel="noopener noreferrer">Enroll now</a>
+              ) : (
+                <Link href="/contact">Enroll now</Link>
+              )}
             </Button>
           </div>
         </motion.div>

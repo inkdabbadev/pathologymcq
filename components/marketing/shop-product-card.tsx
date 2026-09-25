@@ -54,11 +54,14 @@ export function ShopProductCard({ product }: { product: Product }) {
 
         <Button asChild className="w-full">
           <a
-            href={buildWaLink(settings.whatsappNumber, `Hi! I'd like to order the ${product.name}.`)}
+            href={
+              product.externalUrl ||
+              buildWaLink(settings.whatsappNumber, `Hi! I'd like to order the ${product.name}.`)
+            }
             target="_blank"
             rel="noopener noreferrer"
           >
-            Order via WhatsApp
+            {product.externalUrl ? "Buy now" : "Order via WhatsApp"}
           </a>
         </Button>
       </div>

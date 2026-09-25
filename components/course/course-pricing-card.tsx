@@ -29,12 +29,16 @@ export function CoursePricingCard({ course }: { course: Course }) {
       </ul>
 
       <Button asChild size="lg" className="w-full">
-        <Link href={`/register?redirect=/courses/${course.slug}`}>Enroll now</Link>
+        {course.externalUrl ? (
+          <a href={course.externalUrl} target="_blank" rel="noopener noreferrer">Enroll now</a>
+        ) : (
+          <Link href="/contact">Enroll now</Link>
+        )}
       </Button>
 
       <p className="flex items-center justify-center gap-1.5 text-xs text-smoke-400">
         <ShieldCheck className="h-3.5 w-3.5" />
-        Secure checkout &middot; no login required to browse this page
+        Secure checkout
       </p>
 
       <WhatsAppButton

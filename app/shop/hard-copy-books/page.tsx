@@ -21,6 +21,7 @@ function BookEditPanel({ book, onDone }: { book: Product; onDone: () => void }) 
   const [priceRupees, setPriceRupees] = React.useState(String(Math.round(book.priceCents / 100)));
   const [image, setImage] = React.useState(book.imageUrl);
   const [description, setDescription] = React.useState(book.description);
+  const [externalUrl, setExternalUrl] = React.useState(book.externalUrl ?? "");
   const [uploading, setUploading] = React.useState(false);
 
   async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
@@ -42,6 +43,7 @@ function BookEditPanel({ book, onDone }: { book: Product; onDone: () => void }) 
         priceCents: Math.max(0, Math.round(Number(priceRupees) || 0) * 100),
         imageUrl: image,
         description,
+        externalUrl: externalUrl.trim(),
       },
     });
     onDone();
@@ -65,6 +67,13 @@ function BookEditPanel({ book, onDone }: { book: Product; onDone: () => void }) 
         value={priceRupees}
         onChange={(e) => setPriceRupees(e.target.value)}
         placeholder="Price ₹"
+        className={field}
+      />
+      <input
+        type="url"
+        value={externalUrl}
+        onChange={(e) => setExternalUrl(e.target.value)}
+        placeholder="Buy link (https://...)"
         className={field}
       />
       <textarea

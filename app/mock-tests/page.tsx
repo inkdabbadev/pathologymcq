@@ -34,6 +34,7 @@ function MockEditPanel({ mt, onDone }: { mt: MockTestProduct; onDone: () => void
   const [examPattern, setExamPattern] = React.useState(mt.examPattern);
   const [questionCount, setQuestionCount] = React.useState(String(mt.questionCount));
   const [image, setImage] = React.useState(mt.imageUrl);
+  const [externalUrl, setExternalUrl] = React.useState(mt.externalUrl ?? "");
 
   async function save() {
     await update.mutateAsync({
@@ -45,6 +46,7 @@ function MockEditPanel({ mt, onDone }: { mt: MockTestProduct; onDone: () => void
         examPattern,
         questionCount: Math.max(0, Math.round(Number(questionCount) || 0)),
         imageUrl: image,
+        externalUrl: externalUrl.trim(),
       },
     });
     onDone();
@@ -59,6 +61,13 @@ function MockEditPanel({ mt, onDone }: { mt: MockTestProduct; onDone: () => void
       <ImageCropUpload value={image} label="Change image" aspectRatio={1.5} onChange={setImage} />
       <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className={field} />
       <input value={shortLabel} onChange={(e) => setShortLabel(e.target.value)} placeholder="Short label (button text)" className={field} />
+      <input
+        type="url"
+        value={externalUrl}
+        onChange={(e) => setExternalUrl(e.target.value)}
+        placeholder="Buy link (https://...)"
+        className={field}
+      />
       <select value={category} onChange={(e) => setCategory(e.target.value)} className={field}>
         {(categories.data ?? []).map((t) => (
           <option key={t.category} value={t.category}>

@@ -9,6 +9,7 @@ import { Section } from "@/components/ui/section";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CtaBand } from "@/components/marketing/cta-band";
+import { AboutContentEditor } from "@/components/admin/about-content-editor";
 import type { FacultyMember } from "@/lib/api/types";
 import { uploadImage } from "@/lib/blog/api";
 import { useEdit } from "@/lib/edit/edit-context";
@@ -83,16 +84,23 @@ export default function AboutPage() {
 
   return (
     <>
-      <div className="bg-ambient relative -mt-[var(--nav-offset)] overflow-hidden pt-[calc(var(--nav-offset)+4rem)] pb-16">
-        <Container className="max-w-3xl text-center">
-          <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">{settings.aboutHeading}</h1>
-          <div className="mt-6 flex flex-col gap-4 text-lg leading-relaxed text-slate-700">
-            {settings.aboutIntro.split("\n\n").map((para, i) => (
-              <p key={i} className="text-balance">{para}</p>
-            ))}
-          </div>
+      {editMode && (
+        <Container className="pt-8">
+          <AboutContentEditor />
         </Container>
-      </div>
+      )}
+      {!editMode && (
+        <div className="bg-ambient relative -mt-[var(--nav-offset)] overflow-hidden pt-[calc(var(--nav-offset)+4rem)] pb-16">
+          <Container className="max-w-3xl text-center">
+            <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">{settings.aboutHeading}</h1>
+            <div className="mt-6 flex flex-col gap-4 text-lg leading-relaxed text-slate-700">
+              {settings.aboutIntro.split("\n\n").map((para, i) => (
+                <p key={i} className="text-balance">{para}</p>
+              ))}
+            </div>
+          </Container>
+        </div>
+      )}
 
       <Section>
         <Container>
@@ -169,75 +177,74 @@ export default function AboutPage() {
         </Container>
       </Section>
 
-      {/* Why choose us */}
-      <Section ambient>
-        <Container>
-          <div className="rounded-hero bg-mist-100/60 p-8 sm:p-12">
-            <h2 className="font-display text-2xl font-bold text-plum-900 sm:text-3xl">Why choose us</h2>
-            <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
-              {[
-                { title: "Built by Practising Pathologists", body: "Every course, MCQ, and note is authored and reviewed by consultant pathologists who understand real exam pressure and clinical practice." },
-                { title: "WHO-Aligned, Continuously Updated", body: "Content mapped to WHO 5th Edition classifications with ongoing 6th Edition updates — plus references from Ackerman, Sternberg, and standard texts." },
-                { title: "Image-Rich, Exam-Authentic MCQs", body: "High-yield questions with annotated slides, detailed explanations, and mock tests that mirror FRCPath, NEET-SS, and INI-SS patterns." },
-                { title: "Complete Exam Prep Ecosystem", body: "Online courses, hard-copy notes, mock papers, flashcards, and bundles — structured pathways from residency through superspeciality exams." },
-              ].map((c) => (
-                <div key={c.title}>
-                  <h3 className="font-display text-base font-semibold text-plum-900">{c.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-slate-700">{c.body}</p>
+      {!editMode && (
+        <>
+          <Section ambient>
+            <Container>
+              {/* Why choose us */}
+              <div className="mb-8 rounded-hero bg-mist-100/60 p-8 sm:p-12">
+                <h2 className="font-display text-2xl font-bold text-plum-900 sm:text-3xl">Why choose us</h2>
+                <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
+                  {[
+                    { title: "Built by Practising Pathologists", body: "Every course, MCQ, and note is authored and reviewed by consultant pathologists who understand real exam pressure and clinical practice." },
+                    { title: "WHO-Aligned, Continuously Updated", body: "Content mapped to WHO 5th Edition classifications with ongoing 6th Edition updates — plus references from Ackerman, Sternberg, and standard texts." },
+                    { title: "Image-Rich, Exam-Authentic MCQs", body: "High-yield questions with annotated slides, detailed explanations, and mock tests that mirror FRCPath, NEET-SS, and INI-SS patterns." },
+                    { title: "Complete Exam Prep Ecosystem", body: "Online courses, hard-copy notes, mock papers, flashcards, and bundles — structured pathways from residency through superspeciality exams." },
+                  ].map((c) => (
+                    <div key={c.title}>
+                      <h3 className="font-display text-base font-semibold text-plum-900">{c.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-700">{c.body}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <ul className="mt-8 flex flex-col gap-2 border-t border-iris-300/40 pt-6">
-              {[
-                "Built by practising pathologists — every course, MCQ, and note authored and reviewed by consultants",
-                "WHO-aligned content with continuous classification updates and standard textbook references",
-                "Image-rich, exam-authentic MCQs with annotated slides and detailed explanations",
-                "Complete exam prep ecosystem — online courses, hard-copy notes, mock papers, flashcards, and bundles",
-              ].map((li) => (
-                <li key={li} className="flex items-start gap-2 text-sm text-slate-700">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-700" />
-                  <span>{li}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+                <ul className="mt-8 flex flex-col gap-2 border-t border-iris-300/40 pt-6">
+                  {[
+                    "Built by practising pathologists — every course, MCQ, and note authored and reviewed by consultants",
+                    "WHO-aligned content with continuous classification updates and standard textbook references",
+                    "Image-rich, exam-authentic MCQs with annotated slides and detailed explanations",
+                    "Complete exam prep ecosystem — online courses, hard-copy notes, mock papers, flashcards, and bundles",
+                  ].map((li) => (
+                    <li key={li} className="flex items-start gap-2 text-sm text-slate-700">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-700" />
+                      <span>{li}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          {/* Contact */}
-          <div className="mt-8 flex items-start gap-3 text-slate-700">
-            <MapPin className="mt-1 h-5 w-5 shrink-0 text-rose-700" />
-            <div>
-              <p>3/893 Thilagar Street, Ganga Nagar, Medavakkam</p>
-              <p>Chennai, Tamil Nadu, 600100</p>
-              <p className="mt-2">
-                +91 7825890222 &middot;{" "}
-                <a href="mailto:admin@pathologymcq.com" className="font-semibold text-rose-700">admin@pathologymcq.com</a>
-              </p>
-            </div>
-          </div>
+              {/* Contact */}
+              <div className="flex items-start gap-3 text-slate-700">
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-rose-700" />
+                <div>
+                  {settings.aboutAddress.split("\n").map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                  <p className="mt-2">
+                    {settings.aboutPhone} &middot;{" "}
+                    <a href={`mailto:${settings.aboutEmail}`} className="font-semibold text-rose-700">{settings.aboutEmail}</a>
+                  </p>
+                </div>
+              </div>
 
-          {/* Our services */}
-          <div className="mt-12">
-            <h2 className="font-display text-2xl font-bold text-plum-900 sm:text-3xl">Our services</h2>
-            <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-3 sm:grid-cols-2">
-              {[
-                { label: "FRCPath Exam Preparation", href: "/services/frcpath-exam-preparation" },
-                { label: "NEET-SS and INI-SS Pathology Prep", href: "/services/neet-ss-and-ini-ss-pathology-prep" },
-                { label: "Pathology MCQ Practice Banks", href: "/services/pathology-mcq-practice-banks" },
-                { label: "Hard-Copy Pathology Notes", href: "/services/hard-copy-pathology-notes" },
-                { label: "Full-Length Pathology Mock Tests", href: "/services/full-length-pathology-mock-tests" },
-              ].map((svc) => (
-                <Link key={svc.href} href={svc.href} className="font-semibold text-rose-700 hover:underline">
-                  {svc.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </Container>
-      </Section>
+              {/* Our services */}
+              <div className="mt-12">
+                <h2 className="font-display text-2xl font-bold text-plum-900 sm:text-3xl">{settings.aboutServicesHeading}</h2>
+                <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-3 sm:grid-cols-2">
+                  {settings.aboutServices.map((svc) => (
+                    <Link key={svc.href + svc.label} href={svc.href} className="font-semibold text-rose-700 hover:underline">
+                      {svc.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </Container>
+          </Section>
 
-      <Section>
-        <CtaBand />
-      </Section>
+          <Section>
+            <CtaBand />
+          </Section>
+        </>
+      )}
     </>
   );
 }

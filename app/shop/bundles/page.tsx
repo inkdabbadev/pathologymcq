@@ -28,6 +28,7 @@ function BundleEditPanel({ bundle, onDone }: { bundle: Product; onDone: () => vo
   const [image, setImage] = React.useState(bundle.imageUrl);
   const [description, setDescription] = React.useState(bundle.description);
   const [includes, setIncludes] = React.useState((bundle.includes ?? []).join("\n"));
+  const [externalUrl, setExternalUrl] = React.useState(bundle.externalUrl ?? "");
   const [uploading, setUploading] = React.useState(false);
 
   async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
@@ -49,6 +50,7 @@ function BundleEditPanel({ bundle, onDone }: { bundle: Product; onDone: () => vo
         priceCents: Math.max(0, Math.round(Number(priceRupees) || 0) * 100),
         imageUrl: image,
         description,
+        externalUrl: externalUrl.trim(),
         includes: linesToArr(includes),
       },
     });
@@ -73,6 +75,13 @@ function BundleEditPanel({ bundle, onDone }: { bundle: Product; onDone: () => vo
         value={priceRupees}
         onChange={(e) => setPriceRupees(e.target.value)}
         placeholder="Price ₹"
+        className={field}
+      />
+      <input
+        type="url"
+        value={externalUrl}
+        onChange={(e) => setExternalUrl(e.target.value)}
+        placeholder="Buy link (https://...)"
         className={field}
       />
       <textarea

@@ -28,6 +28,7 @@ interface Item {
   currency: string;
   by: string;
   href: string;
+  externalUrl?: string;
 }
 
 function prettify(slug: string) {
@@ -105,19 +106,19 @@ export default function ShopPage() {
     const c: Item[] = courses.map((x) => ({
       id: x.id, kind: "courses", title: x.title, category: prettify(x.category),
       priceCents: x.priceCents, currency: x.currency, by: x.faculty?.name || "Pathology MCQ",
-      href: `${adminBase}/courses/${x.slug}`,
+      href: `${adminBase}/courses/${x.slug}`, externalUrl: x.externalUrl,
     }));
     const b: Item[] = books.map((x) => ({
       id: x.id, kind: "books", title: x.name, category: "Notes",
-      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: `${adminBase}/shop/hard-copy-books`,
+      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: `${adminBase}/shop/hard-copy-books`, externalUrl: x.externalUrl,
     }));
     const u: Item[] = bundles.map((x) => ({
       id: x.id, kind: "bundles", title: x.name, category: "Bundle",
-      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: `${adminBase}/shop/bundles`,
+      priceCents: x.priceCents, currency: x.currency, by: "Pathology MCQ", href: `${adminBase}/shop/bundles`, externalUrl: x.externalUrl,
     }));
     const m: Item[] = mocks.map((x) => ({
       id: x.id, kind: "mocks", title: x.title, category: prettify(x.category),
-      priceCents: 0, currency: "INR", by: "Pathology MCQ", href: `${adminBase}/mock-tests`,
+      priceCents: 0, currency: "INR", by: "Pathology MCQ", href: `${adminBase}/mock-tests`, externalUrl: x.externalUrl,
     }));
     return [...c, ...b, ...u, ...m];
   }, [adminBase, coursesQ.data, booksQ.data, bundlesQ.data, mocksQ.data]);
@@ -145,7 +146,7 @@ export default function ShopPage() {
         {/* Browse */}
         <div>
           <h2 className="font-display text-2xl font-bold text-plum-900">Browse catalog</h2>
-          <p className="mt-1 text-slate-700">Sign in to purchase and access your library</p>
+          <p className="mt-1 text-slate-700">Browse our study material</p>
         </div>
 
         {/* Search */}
@@ -271,12 +272,13 @@ export default function ShopPage() {
                     <span className="font-display text-lg font-bold text-plum-900">
                       {i.priceCents > 0 ? formatPrice(i.priceCents, i.currency) : "Free"}
                     </span>
-                    <Link
-                      href="/login"
+                    <a
+                      href={i.externalUrl || "/contact"}
+                      {...(i.externalUrl ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className="rounded-full bg-royal-500 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-plum-900"
                     >
-                      Sign in to buy
-                    </Link>
+                      Buy now
+                    </a>
                   </div>
                 </div>
               </div>

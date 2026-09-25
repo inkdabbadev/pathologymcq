@@ -141,18 +141,6 @@ export default function SiteSettingsPage() {
             <label className={label}>FAQ subtitle</label>
             <textarea value={s.faqSubtitle} onChange={(e) => set("faqSubtitle", e.target.value)} rows={2} className={field} />
           </div>
-          <div>
-            <label className={label}>About Us heading</label>
-            <input value={s.aboutHeading} onChange={(e) => set("aboutHeading", e.target.value)} className={field} />
-          </div>
-          <div>
-            <label className={label}>About intro paragraph</label>
-            <textarea value={s.aboutIntro} onChange={(e) => set("aboutIntro", e.target.value)} rows={4} className={field} />
-          </div>
-          <div>
-            <label className={label}>About “team” heading</label>
-            <input value={s.aboutTeamHeading} onChange={(e) => set("aboutTeamHeading", e.target.value)} className={field} />
-          </div>
         </div>
 
         {/* Shop hub */}

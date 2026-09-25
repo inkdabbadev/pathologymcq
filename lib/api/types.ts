@@ -28,6 +28,8 @@ export interface Course {
   imageUrl: string;
   priceCents: number;
   currency: string;
+  /** Where the Buy / Enroll button sends visitors (payment page, store, etc.). */
+  externalUrl?: string;
   faculty: FacultyMember;
   lessonCount: number;
   whoFor: string[];
@@ -59,6 +61,8 @@ export interface Product {
   imageUrl: string;
   priceCents: number;
   currency: string;
+  /** Where the Buy button sends visitors (payment page, store, etc.). */
+  externalUrl?: string;
   /** What's included — used by bundles; omitted for standalone products like hard copy books. */
   includes?: string[];
 }

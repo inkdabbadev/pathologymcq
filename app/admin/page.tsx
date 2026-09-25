@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   BookOpen,
+  ClipboardList,
   FileText,
   HelpCircle,
   Layers,
@@ -40,6 +42,12 @@ const cards = [
     label: "Practice questions",
     body: "Manage topics, topic logos, DZI/image questions, answers, and explanations.",
     icon: Microscope,
+  },
+  {
+    href: "/admin/attempts",
+    label: "Practice attempts",
+    body: "See who took which practice set, their scores, and export emails to CSV.",
+    icon: ClipboardList,
   },
   {
     href: "/admin/mock-tests",
@@ -81,12 +89,24 @@ export default function AdminDashboardPage() {
   const bundles = useBundles();
   const faculty = useFaculty();
   const faq = useFaqCategories();
+  const attempts = useQuery({
+    queryKey: ["admin-attempts"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/attempts");
+      if (!res.ok) throw new Error("Failed to load attempts");
+      return ((await res.json()) as { attempts: { email: string }[] }).attempts;
+    },
+    staleTime: 60_000,
+  });
+  const attemptList = attempts.data ?? [];
 
   const stats = [
     { label: "Courses", value: courses.data?.length ?? 0 },
     { label: "Practice topics", value: topics.data?.length ?? 0 },
     { label: "Mock tests", value: mocks.data?.length ?? 0 },
     { label: "Shop items", value: (books.data?.length ?? 0) + (bundles.data?.length ?? 0) },
+    { label: "Practice attempts", value: attemptList.length },
+    { label: "Unique learners", value: new Set(attemptList.map((a) => a.email)).size },
     { label: "Faculty", value: faculty.data?.length ?? 0 },
     { label: "FAQ groups", value: faq.data?.length ?? 0 },
   ];

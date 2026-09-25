@@ -45,7 +45,7 @@ export default function PracticeTopicPage() {
           ) : questions.isLoading ? (
             <p className="text-center text-slate-700">Loading…</p>
           ) : (questions.data?.length ?? 0) > 0 ? (
-            <PracticeQuiz topicLabel={topic?.label ?? "Practice"} questions={questions.data ?? []} />
+            <PracticeQuiz topicSlug={slug} topicLabel={topic?.label ?? "Practice"} questions={questions.data ?? []} />
           ) : (
             <div className="mx-auto flex max-w-md flex-col items-center gap-3 rounded-card border border-iris-300/30 bg-white py-16 text-center shadow-soft">
               <p className="text-slate-700">

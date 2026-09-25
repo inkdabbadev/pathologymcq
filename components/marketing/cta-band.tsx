@@ -16,7 +16,7 @@ export function CtaBand() {
             Join pathologists in 25+ countries preparing with Pathology MCQ.
           </p>
           <Button asChild size="lg">
-            <Link href="/register">Try free questions</Link>
+            <Link href="/practice">Try free questions</Link>
           </Button>
         </div>
       </Reveal>

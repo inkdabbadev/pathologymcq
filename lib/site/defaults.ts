@@ -59,6 +59,11 @@ export interface SiteSettings {
   aboutHeading: string;
   aboutIntro: string;
   aboutTeamHeading: string;
+  aboutAddress: string;
+  aboutPhone: string;
+  aboutEmail: string;
+  aboutServicesHeading: string;
+  aboutServices: { label: string; href: string }[];
   practiceSubtitle: string;
   faqSubtitle: string;
   coursesSubtitle: string;
@@ -101,7 +106,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     subtext:
       "Not another question dump — a week-by-week plan with image-rich MCQs, virtual slides, structured notes and full-length mocks for FRCPath, NEET-SS, INI-SS, MD/DNB and APCP.",
     buttonLabel: "Start learning for free",
-    buttonHref: "/register",
+    buttonHref: "/practice",
   },
   footerColumns: [
     {
@@ -179,6 +184,17 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   aboutIntro:
     "Pathology MCQ is a pathology education platform built by practising pathologists for medical students, residents, and consultants preparing for postgraduate and superspeciality exams — including MD/DNB, FRCPath, NEET-SS, INI-SS, DM fellowships, and allied certification pathways.\n\nWe create the study ecosystem we wished we had in training: image-rich MCQs with annotated slides, structured subspecialty courses, hard-copy notes, full-length mock papers, and continuously updated content aligned with WHO classifications and real exam patterns.\n\nEvery course, question bank, and note set is authored and reviewed by faculty who work day-to-day in surgical pathology, hemato-pathology, onco-pathology, molecular pathology, perinatal and clinical pathology, and gynaec cytology — across teaching hospitals, diagnostic labs, and research institutes.",
   aboutTeamHeading: "Our faculty",
+  aboutAddress: "3/893 Thilagar Street, Ganga Nagar, Medavakkam\nChennai, Tamil Nadu, 600100",
+  aboutPhone: "+91 7825890222",
+  aboutEmail: "admin@pathologymcq.com",
+  aboutServicesHeading: "Our services",
+  aboutServices: [
+    { label: "FRCPath Exam Preparation", href: "/services/frcpath-exam-preparation" },
+    { label: "NEET-SS and INI-SS Pathology Prep", href: "/services/neet-ss-and-ini-ss-pathology-prep" },
+    { label: "Pathology MCQ Practice Banks", href: "/services/pathology-mcq-practice-banks" },
+    { label: "Hard-Copy Pathology Notes", href: "/services/hard-copy-pathology-notes" },
+    { label: "Full-Length Pathology Mock Tests", href: "/services/full-length-pathology-mock-tests" },
+  ],
   practiceSubtitle:
     "Free, image-rich MCQs organized by subspecialty. Pick a topic to start a 10-question set with instant feedback and explanations.",
   faqSubtitle:

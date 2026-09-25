@@ -35,7 +35,7 @@ export function Hero() {
         <Reveal delay={0.18}>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
             <Button asChild size="lg">
-              <Link href="/register">
+              <Link href="/practice">
                 Try free questions
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>

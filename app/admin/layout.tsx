@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
+  ExternalLink,
+  ClipboardList,
   FileText,
   HelpCircle,
   Layers,
@@ -20,17 +22,39 @@ import { Container } from "@/components/ui/container";
 import { useEdit } from "@/lib/edit/edit-context";
 import { cn } from "@/lib/utils";
 
-const adminLinks = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/settings", label: "Site settings", icon: Settings },
-  { href: "/admin/courses", label: "Courses", icon: BookOpen },
-  { href: "/admin/practice", label: "Practice", icon: Microscope },
-  { href: "/admin/mock-tests", label: "Mock tests", icon: Layers },
-  { href: "/admin/shop", label: "Shop", icon: ShoppingBag },
-  { href: "/admin/about", label: "About & faculty", icon: Users },
-  { href: "/admin/faq", label: "FAQ", icon: HelpCircle },
-  { href: "/admin/blog", label: "Blog", icon: FileText },
-  { href: "/admin/pages", label: "Pages", icon: Package },
+const adminGroups = [
+  {
+    title: null,
+    links: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    title: "Learning content",
+    links: [
+      { href: "/admin/courses", label: "Courses", icon: BookOpen },
+      { href: "/admin/practice", label: "Practice questions", icon: Microscope },
+      { href: "/admin/mock-tests", label: "Mock tests", icon: Layers },
+    ],
+  },
+  {
+    title: "Store & learners",
+    links: [
+      { href: "/admin/shop", label: "Shop", icon: ShoppingBag },
+      { href: "/admin/attempts", label: "Practice attempts", icon: ClipboardList },
+    ],
+  },
+  {
+    title: "Website pages",
+    links: [
+      { href: "/admin/blog", label: "Blog", icon: FileText },
+      { href: "/admin/about", label: "About & faculty", icon: Users },
+      { href: "/admin/faq", label: "FAQ", icon: HelpCircle },
+      { href: "/admin/pages", label: "Legal & other pages", icon: Package },
+    ],
+  },
+  {
+    title: "Site",
+    links: [{ href: "/admin/settings", label: "Site settings", icon: Settings }],
+  },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -73,38 +97,53 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="bg-mist-100/50 py-8">
       <Container>
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="h-fit rounded-card border border-iris-300/40 bg-white p-3 shadow-soft">
+          <aside className="h-fit rounded-card border border-iris-300/40 bg-white p-3 shadow-soft lg:sticky lg:top-6">
             <div className="px-3 py-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-royal-500">
                 Admin panel
               </p>
               <p className="mt-1 text-sm text-slate-700">{admin.username}</p>
             </div>
-            <nav className="mt-2 flex flex-col gap-1">
-              {adminLinks.map((item) => {
-                const Icon = item.icon;
-                const active =
-                  item.href === "/admin"
-                    ? pathname === "/admin"
-                    : pathname?.startsWith(item.href.split("#")[0]);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-2 rounded-panel px-3 py-2 text-sm font-semibold transition",
-                      active
-                        ? "bg-plum-900 text-white"
-                        : "text-plum-900 hover:bg-mist-100"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
+            <nav className="mt-2 flex gap-4 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-visible lg:pb-0">
+              {adminGroups.map((group, gi) => (
+                <div key={gi} className="flex shrink-0 gap-1 lg:flex-col">
+                  {group.title && (
+                    <p className="hidden px-3 pt-1 text-[11px] font-semibold uppercase tracking-wider text-smoke-400 lg:block">
+                      {group.title}
+                    </p>
+                  )}
+                  {group.links.map((item) => {
+                    const Icon = item.icon;
+                    const active =
+                      item.href === "/admin"
+                        ? pathname === "/admin"
+                        : pathname?.startsWith(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "flex shrink-0 items-center gap-2 whitespace-nowrap rounded-panel px-3 py-2 text-sm font-semibold transition",
+                          active ? "bg-plum-900 text-white" : "text-plum-900 hover:bg-mist-100"
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
             </nav>
-            <div className="mt-3 border-t border-iris-300/40 pt-3">
+            <div className="mt-3 flex gap-1 border-t border-iris-300/40 pt-3 lg:flex-col">
+              <Link
+                href="/"
+                target="_blank"
+                className="flex items-center gap-2 rounded-panel px-3 py-2 text-sm font-semibold text-plum-900 transition hover:bg-mist-100"
+              >
+                <ExternalLink className="h-4 w-4" />
+                View site
+              </Link>
               <button
                 type="button"
                 onClick={async () => {

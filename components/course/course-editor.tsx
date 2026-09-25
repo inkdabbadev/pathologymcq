@@ -39,6 +39,7 @@ export function CourseEditor({ course }: { course: Course }) {
   const [category, setCategory] = React.useState(course.category);
   const [priceRupees, setPriceRupees] = React.useState(String(Math.round(course.priceCents / 100)));
   const [image, setImage] = React.useState(course.imageUrl);
+  const [externalUrl, setExternalUrl] = React.useState(course.externalUrl ?? "");
   const [whoFor, setWhoFor] = React.useState(course.whoFor.join("\n"));
   const [whatYouGet, setWhatYouGet] = React.useState(course.whatYouGet.join("\n"));
   const [uploading, setUploading] = React.useState(false);
@@ -121,6 +122,7 @@ export function CourseEditor({ course }: { course: Course }) {
         category,
         priceCents: Math.max(0, Math.round(Number(priceRupees) || 0) * 100),
         imageUrl: image,
+        externalUrl: externalUrl.trim(),
         whoFor: linesToArr(whoFor),
         whatYouGet: linesToArr(whatYouGet),
         faculty: { ...course.faculty, name: facName, title: facTitle, affiliation: facAffil },
@@ -207,6 +209,10 @@ export function CourseEditor({ course }: { course: Course }) {
             <div>
               <label className={label}>Price (₹)</label>
               <input type="number" min={0} value={priceRupees} onChange={(e) => setPriceRupees(e.target.value)} className={field} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className={label}>Buy / enroll link (external URL)</label>
+              <input type="url" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} placeholder="https://..." className={field} />
             </div>
           </div>
           <div>
