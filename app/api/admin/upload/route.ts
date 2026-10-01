@@ -136,6 +136,40 @@ export async function POST(request: Request) {
   const files = form.getAll("files").filter((item): item is File => item instanceof File);
   const rawPaths = form.getAll("paths").map(String);
 
+  // Large DZI folders are uploaded in small batches that share one packageId.
+  // Paths are relative to the .dzi file's folder; the batch holding the .dzi rewrites its tile Url.
+  if (mode === "dzi-batch") {
+    const packageId = String(form.get("packageId") ?? "");
+    if (!/^dzi\/\d+-[a-z0-9]+$/.test(packageId)) {
+      return NextResponse.json({ message: "Invalid package id" }, { status: 400 });
+    }
+    if (files.length === 0 || files.length !== rawPaths.length) {
+      return NextResponse.json({ message: "Batch paths are incomplete" }, { status: 400 });
+    }
+    const tileFolder = safeStoragePath(String(form.get("tileFolder") ?? ""));
+    let dziUrl: string | undefined;
+    for (let i = 0; i < files.length; i++) {
+      const safePath = safeStoragePath(rawPaths[i]);
+      if (!safePath) return NextResponse.json({ message: "Invalid file path" }, { status: 400 });
+      const isDzi = /\.dzi$/i.test(safePath);
+      if (isDzi && !tileFolder) {
+        return NextResponse.json({ message: "Missing tile folder name" }, { status: 400 });
+      }
+      const bytes = isDzi
+        ? new TextEncoder().encode(withDziTileFolder(await files[i].text(), tileFolder!))
+        : new Uint8Array(await files[i].arrayBuffer());
+      const storagePath = `${packageId}/${safePath}`;
+      const { error } = await db.storage.from("blog").upload(storagePath, bytes, {
+        contentType: contentTypeFor(files[i], safePath),
+        cacheControl: "31536000",
+        upsert: true,
+      });
+      if (error) return NextResponse.json({ message: error.message }, { status: 400 });
+      if (isDzi) dziUrl = db.storage.from("blog").getPublicUrl(storagePath).data.publicUrl;
+    }
+    return NextResponse.json({ url: dziUrl ?? null });
+  }
+
   if (files.length > 0) {
     if (files.length !== rawPaths.length) {
       return NextResponse.json({ message: "DZI package paths are incomplete" }, { status: 400 });

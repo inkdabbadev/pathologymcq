@@ -175,15 +175,70 @@ export async function createDziFromImage(file: File): Promise<string> {
   return url;
 }
 
-export async function uploadDziPackage(files: FileList | File[]): Promise<string> {
-  const list = Array.from(files);
-  const form = new FormData();
-  for (const file of list) {
-    const relPath = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
-    form.append("files", file);
-    form.append("paths", relPath);
+type RelFile = File & { webkitRelativePath?: string };
+
+/**
+ * Upload a DZI folder (the .dzi file plus its *_files tile folder) in small batches
+ * so folders with thousands of tiles stay under request-size limits.
+ * Returns the public URL of the .dzi file.
+ */
+export async function uploadDziPackage(
+  files: FileList | File[],
+  onProgress?: (done: number, total: number) => void
+): Promise<string> {
+  const all = (Array.from(files) as RelFile[]).map((file) => ({
+    file,
+    path: (file.webkitRelativePath || file.name).replace(/\\/g, "/"),
+  }));
+  const dzi = all.find((f) => /\.dzi$/i.test(f.path));
+  if (!dzi) throw new Error("The selected folder must contain a .dzi file.");
+
+  const slash = dzi.path.lastIndexOf("/");
+  const dziDir = slash >= 0 ? dzi.path.slice(0, slash + 1) : "";
+  const dziName = dzi.path.slice(dziDir.length);
+  const expected = dziName.replace(/\.dzi$/i, "") + "_files";
+
+  const inDir = all
+    .filter((f) => f !== dzi && f.path.startsWith(dziDir))
+    .map((f) => ({ file: f.file, rel: f.path.slice(dziDir.length) }));
+  const tileFolder =
+    inDir.find((f) => f.rel.startsWith(expected + "/"))?.rel.split("/")[0] ??
+    inDir.find((f) => /_files\//i.test(f.rel))?.rel.split("/")[0];
+  if (!tileFolder) throw new Error("The folder must include the *_files tile folder next to the .dzi file.");
+  const tiles = inDir.filter((f) => f.rel.startsWith(tileFolder + "/"));
+
+  const packageId = `dzi/${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const total = tiles.length + 1;
+  let done = 0;
+
+  async function send(batch: { file: File; rel: string }[]): Promise<string | null> {
+    const form = new FormData();
+    form.append("mode", "dzi-batch");
+    form.append("packageId", packageId);
+    form.append("tileFolder", tileFolder!);
+    for (const b of batch) {
+      form.append("files", b.file);
+      form.append("paths", b.rel);
+    }
+    const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+    const { url } = await apiJson<{ url: string | null }>(res);
+    done += batch.length;
+    onProgress?.(done, total);
+    return url;
   }
-  const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-  const { url } = await apiJson<{ url: string }>(res);
+
+  const url = await send([{ file: dzi.file, rel: dziName }]);
+  if (!url) throw new Error("Upload did not return a .dzi URL.");
+
+  const BATCH = 60;
+  const CONCURRENCY = 4;
+  const batches: { file: File; rel: string }[][] = [];
+  for (let i = 0; i < tiles.length; i += BATCH) batches.push(tiles.slice(i, i + BATCH));
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, batches.length) }, async () => {
+      while (next < batches.length) await send(batches[next++]);
+    })
+  );
   return url;
 }
