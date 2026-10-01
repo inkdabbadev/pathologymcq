@@ -80,6 +80,12 @@ export function Navbar() {
           </button>
           <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
 
+          <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+            <a href="https://pathologymcqs.com/?auth=login">
+              Login
+            </a>
+          </Button>
+
           <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link href="/practice">Try free MCQs</Link>
           </Button>
@@ -142,6 +148,11 @@ export function Navbar() {
                       </nav>
 
                       <div className="mt-auto flex flex-col gap-3 pt-8">
+                        <Button asChild variant="outline">
+                          <a href="https://pathologymcqs.com/?auth=login" onClick={() => setMobileOpen(false)}>
+                            Login
+                          </a>
+                        </Button>
                         <Button asChild>
                           <Link href="/practice" onClick={() => setMobileOpen(false)}>
                             Try free MCQs
