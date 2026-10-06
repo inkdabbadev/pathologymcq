@@ -1,9 +1,4 @@
-import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join, relative } from "node:path";
-
 import { NextResponse } from "next/server";
-import sharp from "sharp";
 
 import { getAdmin } from "@/lib/admin/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -54,60 +49,6 @@ function hostedSingleDziXml(xml: string, fileName: string): string | null {
   return withDziTileFolder(xml, `/dzi/${tileFolder}`);
 }
 
-async function walkFiles(root: string): Promise<string[]> {
-  const entries = await readdir(root, { withFileTypes: true });
-  const files = await Promise.all(
-    entries.map(async (entry) => {
-      const path = join(root, entry.name);
-      return entry.isDirectory() ? walkFiles(path) : [path];
-    })
-  );
-  return files.flat();
-}
-
-async function uploadGeneratedDzi(db: ReturnType<typeof getSupabaseAdmin>, file: File): Promise<string> {
-  if (!db) throw new Error("Supabase not configured");
-  if (!file.type.startsWith("image/") && !/\.(jpe?g|png|webp|tiff?|avif)$/i.test(file.name)) {
-    throw new Error("Upload a JPG, PNG, WebP, AVIF or TIFF image to create DZI tiles.");
-  }
-
-  const tempDir = await mkdtemp(join(tmpdir(), "pathology-dzi-"));
-  try {
-    const baseName = (safeStoragePath(basenameWithoutExt(file.name)) ?? "slide").replace(/\//g, "-") || "slide";
-    const outputBase = `${tempDir}/${baseName}`;
-    const input = Buffer.from(await file.arrayBuffer());
-
-    await sharp(input, { limitInputPixels: false })
-      .rotate()
-      .jpeg({ quality: 90 })
-      .tile({ layout: "dz", size: 254, overlap: 1 })
-      .toFile(outputBase);
-
-    const packageId = `dzi/${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const generatedFiles = await walkFiles(tempDir);
-    let publicDziPath = "";
-
-    for (const generatedPath of generatedFiles) {
-      const relativePath = relative(tempDir, generatedPath).replace(/\\/g, "/");
-      const storagePath = `${packageId}/${relativePath}`;
-      const bytes = await readFile(generatedPath);
-      const { error } = await db.storage.from("blog").upload(storagePath, bytes, {
-        contentType: contentTypeForPath(relativePath),
-        cacheControl: "31536000",
-        upsert: false,
-      });
-      if (error) throw new Error(error.message);
-      if (/\.dzi$/i.test(relativePath)) publicDziPath = storagePath;
-    }
-
-    if (!publicDziPath) throw new Error("DZI generation did not produce a .dzi file.");
-    const { data } = db.storage.from("blog").getPublicUrl(publicDziPath);
-    return data.publicUrl;
-  } finally {
-    await rm(tempDir, { recursive: true, force: true });
-  }
-}
-
 export async function POST(request: Request) {
   const admin = await getAdmin();
   if (!admin) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -119,18 +60,10 @@ export async function POST(request: Request) {
   const file = form.get("file");
 
   if (mode === "dzi-from-image") {
-    if (!(file instanceof File)) {
-      return NextResponse.json({ message: "No image provided" }, { status: 400 });
-    }
-    try {
-      const url = await uploadGeneratedDzi(db, file);
-      return NextResponse.json({ url });
-    } catch (err) {
-      return NextResponse.json(
-        { message: err instanceof Error ? err.message : "DZI generation failed" },
-        { status: 400 }
-      );
-    }
+    return NextResponse.json(
+      { message: "Generate the DZI folder locally with npm run dzi:generate, then upload the folder." },
+      { status: 422 }
+    );
   }
 
   const files = form.getAll("files").filter((item): item is File => item instanceof File);

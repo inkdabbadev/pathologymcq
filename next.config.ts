@@ -5,6 +5,8 @@ const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : "swowjsnv
 
 const nextConfig: NextConfig = {
   images: {
+    // Serve original images; no native Sharp or paid image binding is required.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",

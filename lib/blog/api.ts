@@ -170,15 +170,6 @@ export async function uploadDziFile(file: File): Promise<string> {
   return uploadFile(file);
 }
 
-export async function createDziFromImage(file: File): Promise<string> {
-  const form = new FormData();
-  form.append("mode", "dzi-from-image");
-  form.append("file", file);
-  const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-  const { url } = await apiJson<{ url: string }>(res);
-  return url;
-}
-
 type RelFile = File & { webkitRelativePath?: string };
 
 /**

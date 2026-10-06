@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, FolderUp, ImageUp } from "lucide-react";
+import { Check, Copy, FolderUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { SlideViewer } from "@/components/marketing/slide-viewer";
-import { createDziFromImage, uploadDziPackage } from "@/lib/blog/api";
+import { uploadDziPackage } from "@/lib/blog/api";
 
 export default function AdminDziPage() {
   const [busy, setBusy] = React.useState(false);
@@ -37,12 +37,6 @@ export default function AdminDziPage() {
     void run(() => uploadDziPackage(list, (done, total) => setProgress({ done, total })));
   }
 
-  function onImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (file) void run(() => createDziFromImage(file));
-  }
-
   async function copy() {
     if (!url) return;
     await navigator.clipboard.writeText(url);
@@ -57,7 +51,7 @@ export default function AdminDziPage() {
       <p className="text-xs font-semibold uppercase tracking-wider text-royal-500">Slides</p>
       <h1 className="mt-1 font-display text-3xl font-bold text-plum-900">DZI slides</h1>
       <p className="mt-2 max-w-2xl text-sm text-slate-700">
-        Upload a deep-zoom slide as a folder, or turn a single image into one. You get a link to use
+        Upload a deep-zoom slide folder. You get a link to use
         wherever a slide is needed.
       </p>
 
@@ -83,15 +77,13 @@ export default function AdminDziPage() {
         </div>
 
         <div className="rounded-card border border-iris-300/40 bg-white p-5 shadow-soft">
-          <h2 className="font-display text-lg font-bold text-plum-900">Create from one image</h2>
+          <h2 className="font-display text-lg font-bold text-plum-900">Prepare a single image</h2>
           <p className="mt-1 text-sm text-slate-700">
-            Upload a large JPG, PNG, WebP or TIFF and tiles are generated for you.
+            Convert a JPG, PNG, WebP or TIFF on your computer, then upload the generated folder using “Choose folder”.
           </p>
-          <label className={`${pickerClass} mt-4 ${busy ? "pointer-events-none opacity-50" : ""}`}>
-            <ImageUp className="h-4 w-4" />
-            Choose image
-            <input type="file" accept="image/*" className="hidden" onChange={onImage} disabled={busy} />
-          </label>
+          <code className="mt-4 block break-all rounded-panel bg-mist-100 p-3 text-xs">
+            npm run dzi:generate -- /path/to/slide.tiff /path/to/output-folder
+          </code>
         </div>
       </div>
 
