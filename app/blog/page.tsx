@@ -29,7 +29,7 @@ export default function BlogIndexPage() {
   const [newCat, setNewCat] = React.useState("");
 
   const countFor = (categoryId: string) =>
-    posts.data?.filter((p) => p.category_id === categoryId).length ?? 0;
+    posts.data?.filter((p) => p.category_id === categoryId || p.additional_category_ids?.includes(categoryId)).length ?? 0;
 
   return (
     <Section>
@@ -74,6 +74,15 @@ export default function BlogIndexPage() {
           <p className="mt-2 max-w-xl rounded-panel bg-cyto-100 p-3 text-sm text-rose-700">
             Couldn&apos;t add category: {(createCategory.error as Error).message}
           </p>
+        )}
+
+        {(categories.isError || posts.isError) && (
+          <div role="alert" className="mt-6 rounded-panel bg-cyto-100 p-4">
+            <p className="text-sm text-rose-700">
+              Could not load blog content: {categories.error?.message ?? posts.error?.message}
+            </p>
+            <Button variant="outline" className="mt-3" onClick={() => { void categories.refetch(); void posts.refetch(); }}>Try again</Button>
+          </div>
         )}
 
         {/* Category cards */}

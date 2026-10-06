@@ -10,7 +10,7 @@ import type { Block, BlogPost, Category, PostStatus } from "@/lib/blog/types";
  */
 
 const POST_SELECT =
-  "id,title,slug,excerpt,cover_image,category_id,status,content,created_at,updated_at,category:categories(id,name,slug)";
+  "id,title,slug,excerpt,external_url,additional_category_ids,cover_image,category_id,status,content,created_at,updated_at,category:categories(id,name,slug)";
 
 function anon() {
   const c = getSupabaseBrowser();
@@ -53,7 +53,8 @@ export async function listPublishedPosts(categorySlug?: string): Promise<BlogPos
     .order("created_at", { ascending: false });
   if (error) throw error;
   let rows = (data ?? []) as unknown as BlogPost[];
-  if (categorySlug) rows = rows.filter((p) => p.category?.slug === categorySlug);
+  const categoryId = categorySlug ? (await getCategoryBySlug(categorySlug))?.id : null;
+  if (categorySlug) rows = rows.filter((p) => p.category?.slug === categorySlug || p.additional_category_ids?.includes(categoryId ?? ""));
   return rows;
 }
 
@@ -72,7 +73,8 @@ export async function getPublishedPostBySlug(slug: string): Promise<BlogPost | n
 export async function listAdminPosts(categorySlug?: string): Promise<BlogPost[]> {
   const res = await fetch("/api/admin/posts", { cache: "no-store" });
   const { posts } = await apiJson<{ posts: BlogPost[] }>(res);
-  return categorySlug ? posts.filter((p) => p.category?.slug === categorySlug) : posts;
+  const categoryId = categorySlug ? (await getCategoryBySlug(categorySlug))?.id : null;
+  return categorySlug ? posts.filter((p) => p.category?.slug === categorySlug || p.additional_category_ids?.includes(categoryId ?? "")) : posts;
 }
 
 export async function getAdminPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -128,6 +130,8 @@ export async function updatePost(
   patch: Partial<{
     title: string;
     excerpt: string;
+    external_url: string | null;
+    additional_category_ids: string[];
     cover_image: string | null;
     category_id: string | null;
     status: PostStatus;

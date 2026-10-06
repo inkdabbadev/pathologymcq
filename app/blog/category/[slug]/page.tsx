@@ -1,5 +1,7 @@
 "use client";
 
+import { blogHref } from "@/lib/blog/links";
+
 import * as React from "react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -134,7 +136,7 @@ export default function CategoryPage() {
           {pageItems.map((p) => (
             <div key={p.id} className="group relative">
               <Link
-                href={`${hrefBase}/${p.slug}`}
+                href={blogHref(p, hrefBase)}
                 className="flex h-full flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
               >
                 <div className="relative aspect-[3/2] overflow-hidden bg-mist-100">

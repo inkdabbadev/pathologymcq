@@ -158,7 +158,14 @@ export default function CoursesPage() {
           </div>
         )}
 
-        {filtered.length > 0 ? (
+        {courses.isPending ? (
+          <p className="mt-12 text-center text-slate-700">Loading courses…</p>
+        ) : courses.isError ? (
+          <div role="alert" className="mt-12 rounded-card border border-iris-300/30 bg-white p-6 text-center">
+            <p className="text-rose-700">Could not load courses: {courses.error.message}</p>
+            <Button variant="outline" className="mt-4" onClick={() => void courses.refetch()}>Try again</Button>
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((course) => (
               <div key={course.id} className="group relative h-full">

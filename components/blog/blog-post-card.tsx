@@ -1,3 +1,4 @@
+import { blogHref } from "@/lib/blog/links";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ export function BlogPostCard({
 }) {
   return (
     <Link
-      href={`${hrefBase}/${post.slug}`}
+      href={blogHref(post, hrefBase)}
       className="group flex flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
     >
       <div className="relative aspect-[3/2] overflow-hidden bg-mist-100">

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
 import { Hero } from "@/components/marketing/hero";
-import { CourseCard } from "@/components/marketing/course-card";
+import { FeaturedCourses } from "@/components/marketing/featured-courses";
 import { TestimonialCard } from "@/components/marketing/testimonial-card";
 import { CtaBand } from "@/components/marketing/cta-band";
 import { FacultyStrip } from "@/components/marketing/faculty-strip";
@@ -278,13 +278,7 @@ export default async function Home() {
               </Button>
             </div>
           </Reveal>
-          <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
-              <Reveal key={course.id}>
-                <CourseCard course={course} />
-              </Reveal>
-            ))}
-          </RevealGroup>
+          <FeaturedCourses fallback={courses} />
         </Container>
       </Section>
 

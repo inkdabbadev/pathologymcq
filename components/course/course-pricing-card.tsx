@@ -13,9 +13,9 @@ export function CoursePricingCard({ course }: { course: Course }) {
       className="sticky top-24 flex flex-col gap-5 rounded-hero border border-iris-300/30 bg-white p-6 shadow-lifted sm:p-8"
     >
       <div>
-        <p className="text-sm text-smoke-400">One-time payment, lifetime course updates</p>
+        <p className="text-sm text-smoke-400">{course.priceOnRequest ? "See enrollment page for current pricing" : "One-time payment, lifetime course updates"}</p>
         <p className="mt-1 font-display text-4xl font-bold text-plum-900">
-          {formatPrice(course.priceCents, course.currency)}
+          {course.priceOnRequest ? "View pricing" : formatPrice(course.priceCents, course.currency)}
         </p>
       </div>
 

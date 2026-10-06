@@ -25,6 +25,7 @@ interface Item {
   title: string;
   category: string;
   priceCents: number;
+  priceOnRequest?: boolean;
   currency: string;
   by: string;
   href: string;
@@ -105,7 +106,7 @@ export default function ShopPage() {
     const mocks = mocksQ.data ?? [];
     const c: Item[] = courses.map((x) => ({
       id: x.id, kind: "courses", title: x.title, category: prettify(x.category),
-      priceCents: x.priceCents, currency: x.currency, by: x.faculty?.name || "Pathology MCQ",
+      priceCents: x.priceCents, priceOnRequest: x.priceOnRequest, currency: x.currency, by: x.faculty?.name || "Pathology MCQ",
       href: `${adminBase}/courses/${x.slug}`, externalUrl: x.externalUrl,
     }));
     const b: Item[] = books.map((x) => ({
@@ -118,7 +119,7 @@ export default function ShopPage() {
     }));
     const m: Item[] = mocks.map((x) => ({
       id: x.id, kind: "mocks", title: x.title, category: prettify(x.category),
-      priceCents: 0, currency: "INR", by: "Pathology MCQ", href: `${adminBase}/mock-tests`, externalUrl: x.externalUrl,
+      priceCents: 0, priceOnRequest: true, currency: "INR", by: "Pathology MCQ", href: `${adminBase}/mock-tests`, externalUrl: x.externalUrl,
     }));
     return [...c, ...b, ...u, ...m];
   }, [adminBase, coursesQ.data, booksQ.data, bundlesQ.data, mocksQ.data]);
@@ -270,7 +271,7 @@ export default function ShopPage() {
                   </div>
                   <div className="mt-auto flex items-center justify-between pt-3">
                     <span className="font-display text-lg font-bold text-plum-900">
-                      {i.priceCents > 0 ? formatPrice(i.priceCents, i.currency) : "Free"}
+                      {i.priceOnRequest ? "View pricing" : i.priceCents > 0 ? formatPrice(i.priceCents, i.currency) : "Free"}
                     </span>
                     <a
                       href={i.externalUrl || "/contact"}

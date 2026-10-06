@@ -37,7 +37,7 @@ export function CourseEditor({ course }: { course: Course }) {
   const [subspecialty, setSubspecialty] = React.useState(course.subspecialty);
   const [examTargets, setExamTargets] = React.useState(course.examTargets.join(", "));
   const [category, setCategory] = React.useState(course.category);
-  const [priceRupees, setPriceRupees] = React.useState(String(Math.round(course.priceCents / 100)));
+  const [priceRupees, setPriceRupees] = React.useState(course.priceOnRequest ? "" : String(Math.round(course.priceCents / 100)));
   const [image, setImage] = React.useState(course.imageUrl);
   const [externalUrl, setExternalUrl] = React.useState(course.externalUrl ?? "");
   const [whoFor, setWhoFor] = React.useState(course.whoFor.join("\n"));
@@ -120,6 +120,7 @@ export function CourseEditor({ course }: { course: Course }) {
         subspecialty,
         examTargets: examTargets.split(",").map((t) => t.trim()).filter(Boolean),
         category,
+        priceOnRequest: priceRupees.trim() === "",
         priceCents: Math.max(0, Math.round(Number(priceRupees) || 0) * 100),
         imageUrl: image,
         externalUrl: externalUrl.trim(),
@@ -207,7 +208,7 @@ export function CourseEditor({ course }: { course: Course }) {
               </select>
             </div>
             <div>
-              <label className={label}>Price (₹)</label>
+              <label className={label}>Price (₹; leave blank if unspecified)</label>
               <input type="number" min={0} value={priceRupees} onChange={(e) => setPriceRupees(e.target.value)} className={field} />
             </div>
             <div className="sm:col-span-2">

@@ -12,6 +12,7 @@ import { BlockRenderer } from "@/components/blog/block-renderer";
 import { PostEditor } from "@/components/blog/post-editor";
 import { useEdit } from "@/lib/edit/edit-context";
 import { usePost } from "@/lib/blog/hooks";
+import { articleUrl } from "@/lib/blog/links";
 
 export default function BlogPostPage() {
   const params = useParams<{ slug: string }>();
@@ -20,6 +21,11 @@ export default function BlogPostPage() {
   const { editMode } = useEdit();
   const hrefBase = pathname?.startsWith("/admin") ? "/admin/blog" : "/blog";
   const { data: post, isLoading, error } = usePost(slug);
+  const destination = articleUrl(post?.external_url);
+  const isAdminPage = pathname?.startsWith("/admin");
+  React.useEffect(() => {
+    if (destination && !isAdminPage) window.location.replace(destination);
+  }, [destination, isAdminPage]);
 
   if (isLoading) {
     return (
@@ -49,6 +55,10 @@ export default function BlogPostPage() {
   // Admins in edit mode get the full editor; everyone else (and preview) reads.
   if (editMode) {
     return <PostEditor post={post} />;
+  }
+
+  if (destination) {
+    return <Section><Container><a href={destination} className="text-royal-500 underline">Continue to {post.title}</a></Container></Section>;
   }
 
   return (

@@ -27,6 +27,8 @@ export interface Course {
   examTargets: string[];
   imageUrl: string;
   priceCents: number;
+  /** Price was not supplied; keep it distinct from a free course. */
+  priceOnRequest?: boolean;
   currency: string;
   /** Where the Buy / Enroll button sends visitors (payment page, store, etc.). */
   externalUrl?: string;

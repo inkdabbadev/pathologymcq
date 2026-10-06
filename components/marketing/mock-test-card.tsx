@@ -19,7 +19,7 @@ export function MockTestCard({ product }: { product: MockTestProduct }) {
           <h3 className="font-display text-base font-semibold leading-snug text-plum-900">
             {product.title}
           </h3>
-          <p className="mt-1 text-xs text-smoke-400">{product.questionCount} questions</p>
+          {product.questionCount > 0 && <p className="mt-1 text-xs text-smoke-400">{product.questionCount} questions</p>}
         </div>
         <Button asChild className="mt-auto w-full text-xs sm:text-sm">
           {product.externalUrl ? (

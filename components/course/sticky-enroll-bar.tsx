@@ -32,7 +32,7 @@ export function StickyEnrollBar({ course }: { course: Course }) {
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-plum-900">{course.title}</p>
               <p className="text-sm text-smoke-400">
-                {formatPrice(course.priceCents, course.currency)}
+                {course.priceOnRequest ? "View pricing" : formatPrice(course.priceCents, course.currency)}
               </p>
             </div>
             <Button asChild size="lg" className="shrink-0">

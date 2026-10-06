@@ -39,6 +39,9 @@ export interface BlogPost {
   title: string;
   slug: string;
   excerpt: string;
+  external_url?: string | null;
+  /** Additional category IDs, preserving multi-category imported articles. */
+  additional_category_ids?: string[];
   cover_image: string | null;
   category_id: string | null;
   status: PostStatus;

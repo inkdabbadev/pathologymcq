@@ -4,7 +4,7 @@ import { getAdmin } from "@/lib/admin/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 const POST_SELECT =
-  "id,title,slug,excerpt,cover_image,category_id,status,content,created_at,updated_at,category:categories(id,name,slug)";
+  "id,title,slug,excerpt,external_url,additional_category_ids,cover_image,category_id,status,content,created_at,updated_at,category:categories(id,name,slug)";
 
 function slugify(input: string): string {
   return (

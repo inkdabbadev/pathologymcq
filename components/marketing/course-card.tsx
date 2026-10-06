@@ -1,3 +1,4 @@
+import { articleUrl } from "@/lib/blog/links";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,7 +10,7 @@ import { formatPrice } from "@/lib/format";
 export function CourseCard({ course, hrefBase = "/courses" }: { course: Course; hrefBase?: string }) {
   return (
     <Link
-      href={`${hrefBase}/${course.slug}`}
+      href={hrefBase.startsWith("/admin") ? `${hrefBase}/${course.slug}` : articleUrl(course.externalUrl) ?? `${hrefBase}/${course.slug}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-royal-500/50 hover:shadow-glow"
     >
       <div className="relative aspect-[3/2] overflow-hidden">
@@ -33,14 +34,14 @@ export function CourseCard({ course, hrefBase = "/courses" }: { course: Course; 
           {course.title}
         </h3>
 
-        <div className="flex items-center gap-2 text-sm text-slate-700">
+        {course.faculty.name && <div className="flex items-center gap-2 text-sm text-slate-700">
           <Avatar name={course.faculty.name} size={28} />
           <span>{course.faculty.name}</span>
-        </div>
+        </div>}
 
         <div className="mt-auto flex items-center justify-end pt-2">
           <span className="font-display text-lg font-bold text-plum-900">
-            {formatPrice(course.priceCents, course.currency)}
+            {course.priceOnRequest ? "View pricing" : formatPrice(course.priceCents, course.currency)}
           </span>
         </div>
       </div>

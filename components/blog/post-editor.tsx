@@ -12,6 +12,7 @@ import { BlockEditor } from "@/components/blog/block-editor";
 import type { Block, BlogPost } from "@/lib/blog/types";
 import { useCategories, useDeletePost, useUpdatePost } from "@/lib/blog/hooks";
 import { uploadImage } from "@/lib/blog/api";
+import { articleUrl } from "@/lib/blog/links";
 
 export function PostEditor({ post }: { post: BlogPost }) {
   const router = useRouter();
@@ -21,6 +22,9 @@ export function PostEditor({ post }: { post: BlogPost }) {
 
   const [title, setTitle] = React.useState(post.title);
   const [excerpt, setExcerpt] = React.useState(post.excerpt);
+  const [externalUrl, setExternalUrl] = React.useState(post.external_url ?? "");
+  const [additionalCategories, setAdditionalCategories] = React.useState(post.additional_category_ids ?? []);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
   const [categoryId, setCategoryId] = React.useState(post.category_id ?? "");
   const [cover, setCover] = React.useState(post.cover_image);
   const [blocks, setBlocks] = React.useState<Block[]>(post.content ?? []);
@@ -36,20 +40,31 @@ export function PostEditor({ post }: { post: BlogPost }) {
   }
 
   async function save(status?: "draft" | "published") {
-    const res = await updatePost.mutateAsync({
-      id: post.id,
-      patch: {
-        title,
-        excerpt,
-        category_id: categoryId || null,
-        cover_image: cover,
-        content: blocks,
-        ...(status ? { status } : {}),
-      },
-    });
-    setDirty(false);
-    setSavedAt(new Date().toLocaleTimeString());
-    if (res.slug !== post.slug) router.replace(`/blog/${res.slug}`);
+    setSaveError(null);
+    if (externalUrl.trim() && !articleUrl(externalUrl)) {
+      setSaveError("Enter an absolute http:// or https:// article link, or leave it blank.");
+      return;
+    }
+    try {
+      const res = await updatePost.mutateAsync({
+        id: post.id,
+        patch: {
+          title,
+          excerpt,
+          external_url: articleUrl(externalUrl),
+          additional_category_ids: additionalCategories.filter((id) => id !== categoryId),
+          category_id: categoryId || null,
+          cover_image: cover,
+          content: blocks,
+          ...(status ? { status } : {}),
+        },
+      });
+      setDirty(false);
+      setSavedAt(new Date().toLocaleTimeString());
+      if (res.slug !== post.slug) router.replace(`/admin/blog/${res.slug}`);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save post");
+    }
   }
 
   async function onCover(e: React.ChangeEvent<HTMLInputElement>) {
@@ -104,6 +119,29 @@ export function PostEditor({ post }: { post: BlogPost }) {
         </div>
 
         {/* Meta */}
+        {saveError && <p role="alert" className="mb-4 text-sm text-rose-700">{saveError}</p>}
+        <label className="mb-6 block text-sm font-semibold text-plum-900">
+          Article destination link
+          <input
+            type="url"
+            value={externalUrl}
+            onChange={(e) => markDirty(setExternalUrl)(e.target.value)}
+            placeholder="https://pathologymcq.com/article/"
+            className="mt-2 w-full rounded-panel border border-iris-300/60 px-3 py-2 font-normal"
+          />
+          <span className="mt-1 block font-normal text-slate-700">Visitors open this link. Leave blank to display the article on this website.</span>
+        </label>
+        <fieldset className="mb-6">
+          <legend className="text-sm font-semibold text-plum-900">Additional categories</legend>
+          <div className="mt-2 flex max-h-40 flex-wrap gap-3 overflow-y-auto">
+            {categories.data?.filter((c) => c.id !== categoryId).map((c) => (
+              <label key={c.id} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={additionalCategories.includes(c.id)} onChange={(e) => markDirty(setAdditionalCategories)(e.target.checked ? [...additionalCategories, c.id] : additionalCategories.filter((id) => id !== c.id))} />
+                {c.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <select
             value={categoryId}
