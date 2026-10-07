@@ -41,7 +41,7 @@ export function Navbar() {
           {settings.siteName}
         </Link>
 
-        <nav className="hidden shrink-0 items-center gap-1 2xl:flex">
+        <nav className="hidden min-w-0 items-center gap-0 overflow-x-auto xl:flex 2xl:gap-1">
           {navLinks.map((link) => {
             const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
             return (
@@ -49,7 +49,7 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "relative whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-plum-900",
+                  "relative shrink-0 whitespace-nowrap rounded-full px-2 py-2 text-[13px] 2xl:px-3 2xl:text-sm font-medium text-slate-700 transition-colors hover:text-plum-900",
                   active && "text-plum-900"
                 )}
               >
@@ -95,7 +95,7 @@ export function Navbar() {
               <button
                 type="button"
                 aria-label="Open menu"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-plum-900 hover:bg-mist-100 2xl:hidden"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-plum-900 hover:bg-mist-100 xl:hidden"
               >
                 <Menu className="h-5 w-5" />
               </button>
