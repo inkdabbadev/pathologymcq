@@ -9,7 +9,7 @@ In Cloudflare Workers Builds, use:
 
 The Wrangler custom build also supports the existing `npx wrangler deploy` command. Do not deploy `.next` as a static Pages directory; the API routes require Workers.
 
-Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the build environment. Set the same Supabase URL and the server-only `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` in the Worker runtime variables/secrets. Never put server secrets in `NEXT_PUBLIC_` variables or committed configuration. Local `.env` files are not uploaded.
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the build environment. Set the same Supabase URL and the server-only `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` in the Worker runtime variables/secrets. Never put server secrets in `NEXT_PUBLIC_` variables or committed configuration. Local `.env` files are not uploaded. `keep_vars: true` preserves dashboard runtime variables across Wrangler deployments; secrets are managed separately. Cloudflare Build variables must still match the public Supabase values used at runtime.
 
 ## Slide uploads
 
