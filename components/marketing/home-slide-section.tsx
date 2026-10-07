@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import {
   DEFAULT_SLIDE_TILE_SOURCE,
-  SlideViewer,
   type SlideViewerHandle,
 } from "@/components/marketing/slide-viewer";
+import { ClientSlideViewer } from "@/components/marketing/client-slide-viewer";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
 
@@ -51,7 +51,7 @@ export function HomeSlideSection() {
         </Reveal>
 
         <Reveal delay={0.08} className="mt-10 block">
-          <SlideViewer
+          <ClientSlideViewer
             ref={viewerRef}
             title={slide.title}
             caption={slide.caption}

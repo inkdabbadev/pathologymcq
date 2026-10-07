@@ -24,7 +24,7 @@ export const DEFAULT_SLIDE_REGIONS: SlideRegion[] = [
 export const DEFAULT_SLIDE_TILE_SOURCE = "/dzi/Lichen planus.dzi";
 export const DEFAULT_SLIDE_TITLE = "Lichen Planus — Thin Skin";
 
-interface SlideViewerProps {
+export interface SlideViewerProps {
   controls?: "dropdown" | "finder";
   title?: string;
   caption?: string;

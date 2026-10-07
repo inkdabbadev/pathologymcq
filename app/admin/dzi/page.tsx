@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check, Copy, FolderUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { SlideViewer } from "@/components/marketing/slide-viewer";
+import { ClientSlideViewer } from "@/components/marketing/client-slide-viewer";
 import { uploadDziPackage } from "@/lib/blog/api";
 
 export default function AdminDziPage() {
@@ -116,7 +116,7 @@ export default function AdminDziPage() {
               {copied ? "Copied" : "Copy link"}
             </Button>
           </div>
-          <SlideViewer tileSource={url} title="Preview" caption="Check the slide loads and zooms correctly." />
+          <ClientSlideViewer tileSource={url} title="Preview" caption="Check the slide loads and zooms correctly." />
         </div>
       )}
     </div>

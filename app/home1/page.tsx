@@ -10,7 +10,7 @@ import { CourseCard } from "@/components/marketing/course-card";
 import { TestimonialCard } from "@/components/marketing/testimonial-card";
 import { CtaBand } from "@/components/marketing/cta-band";
 import { ExamPathwayCard } from "@/components/marketing/exam-pathway-card";
-import { SlideViewer } from "@/components/marketing/slide-viewer";
+import { ClientSlideViewer } from "@/components/marketing/client-slide-viewer";
 import { getFeaturedCourses, getStats, getTestimonials } from "@/lib/api/content";
 import { EXAM_PATHWAYS } from "@/lib/mock/exam-pathways";
 
@@ -66,7 +66,7 @@ export default async function Home() {
           </Reveal>
 
           <Reveal delay={0.08} className="mt-10 block">
-            <SlideViewer controls="finder" />
+            <ClientSlideViewer controls="finder" />
           </Reveal>
         </Container>
       </Section>
