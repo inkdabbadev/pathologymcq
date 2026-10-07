@@ -32,16 +32,16 @@ export function Navbar() {
     <header className="sticky top-0 z-50 flex justify-center px-[var(--gutter)] pt-3">
       <div
         className={cn(
-          "flex w-full max-w-[1600px] items-center justify-between rounded-full border border-white/40 bg-white/70 backdrop-blur-xl transition-all duration-300",
+          "flex w-full max-w-[1600px] items-center justify-between gap-3 rounded-full border border-white/40 bg-white/70 backdrop-blur-xl transition-all duration-300",
           scrolled ? "h-14 px-4 shadow-soft" : "h-18 px-6 shadow-none"
         )}
       >
-        <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold text-plum-900">
-          <img src={logoUrl} alt={settings.siteName} className="h-8 w-8 rounded-md object-cover" />
+        <Link href="/" className="flex shrink-0 items-center gap-2 whitespace-nowrap font-display text-base sm:text-lg font-bold text-plum-900">
+          <img src={logoUrl} alt={settings.siteName} className="h-8 w-8 shrink-0 rounded-md object-cover" />
           {settings.siteName}
         </Link>
 
-        <nav className="hidden items-center gap-1 xl:flex">
+        <nav className="hidden shrink-0 items-center gap-1 2xl:flex">
           {navLinks.map((link) => {
             const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
             return (
@@ -49,7 +49,7 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "relative rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-plum-900",
+                  "relative whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-plum-900",
                   active && "text-plum-900"
                 )}
               >
@@ -66,7 +66,7 @@ export function Navbar() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             aria-label="Cart"
@@ -95,7 +95,7 @@ export function Navbar() {
               <button
                 type="button"
                 aria-label="Open menu"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-plum-900 hover:bg-mist-100 xl:hidden"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-plum-900 hover:bg-mist-100 2xl:hidden"
               >
                 <Menu className="h-5 w-5" />
               </button>
