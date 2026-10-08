@@ -11,9 +11,10 @@ import * as store from "@/lib/catalog/store";
 export function useCourses() {
   return useQuery({ queryKey: ["courses"], queryFn: async () => store.listCourses() });
 }
-export function useCourse(slug: string) {
+export function useCourse(slug: string, initialData?: Course) {
   return useQuery({
     queryKey: ["course", slug],
+    initialData,
     queryFn: async () => store.getCourseBySlug(slug),
     enabled: Boolean(slug),
   });

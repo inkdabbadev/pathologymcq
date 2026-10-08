@@ -9,11 +9,20 @@ function safeStoragePath(path: string): string | null {
   const clean = path.replace(/\\/g, "/").replace(/^\/+/, "");
   const parts = clean.split("/").filter(Boolean);
   if (parts.length === 0 || parts.some((part) => part === "." || part === "..")) return null;
-  return parts.map((part) => part.replace(/[^a-zA-Z0-9._ -]/g, "-")).join("/");
+  // Keep object keys URL-safe. In particular, spaces in a DZI filename can be
+  // encoded once by Supabase and again by a viewer, causing descriptor and tile
+  // paths to disagree. Applying this to both the descriptor and every tile keeps
+  // the rewritten DZI `Url` attribute aligned with the stored object keys.
+  return parts
+    .map((part) => part.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-"))
+    .join("/");
 }
 
 function contentTypeFor(file: File, path: string): string {
-  if (file.type) return file.type;
+  // Browsers commonly report .dzi files as application/octet-stream. Prefer
+  // the known extension so storage serves descriptors as XML.
+  if (/\.dzi$/i.test(path)) return "application/xml";
+  if (file.type && file.type !== "application/octet-stream") return file.type;
   return contentTypeForPath(path);
 }
 
@@ -100,7 +109,7 @@ export async function POST(request: Request) {
       if (error) return NextResponse.json({ message: error.message }, { status: 400 });
       if (isDzi) dziUrl = db.storage.from("blog").getPublicUrl(storagePath).data.publicUrl;
     }
-    return NextResponse.json({ url: dziUrl ?? null });
+    return NextResponse.json({ url: dziUrl ?? null, uploaded: files.length });
   }
 
   if (files.length > 0) {

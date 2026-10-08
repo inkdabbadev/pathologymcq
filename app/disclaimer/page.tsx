@@ -1,5 +1,10 @@
-import { ContentPage } from "@/components/pages/content-page";
+import PageContent from "./page-content";
+import { pageMetadata, pageGraph, staticRoutes } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/seo/json-ld";
 
-export default function DisclaimerPage() {
-  return <ContentPage slug="disclaimer" />;
+export const metadata = pageMetadata("/disclaimer");
+
+export default function Page() {
+  const config = staticRoutes["/disclaimer"];
+  return <><JsonLd data={pageGraph("/disclaimer", config.title, config.description)} /><PageContent /></>;
 }

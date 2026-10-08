@@ -38,6 +38,38 @@ export interface SlideViewerHandle {
   isReady: () => boolean;
 }
 
+async function resolveDziSource(OpenSeadragon: typeof OpenSeadragonNS, source: string) {
+  const descriptorUrl = new URL(source, window.location.href);
+  const response = await fetch(descriptorUrl, { mode: "cors", credentials: "omit" });
+  if (!response.ok) throw new Error(`Slide descriptor returned HTTP ${response.status}`);
+  const document = new DOMParser().parseFromString(await response.text(), "application/xml");
+  if (document.querySelector("parsererror")) throw new Error("Slide descriptor is invalid XML");
+  const image = document.documentElement;
+  const size = Array.from(image.children).find((node) => node.localName === "Size");
+  const width = Number(size?.getAttribute("Width"));
+  const height = Number(size?.getAttribute("Height"));
+  const tileSize = Number(image.getAttribute("TileSize"));
+  const tileOverlap = Number(image.getAttribute("Overlap") || 0);
+  const fileFormat = image.getAttribute("Format") || "jpeg";
+  if (![width, height, tileSize, tileOverlap].every(Number.isFinite) || width <= 0 || height <= 0 || tileSize <= 0) {
+    throw new Error("Slide descriptor has invalid dimensions");
+  }
+  const configuredFolder = image.getAttribute("Url");
+  const fallbackFolder = descriptorUrl.pathname.replace(/\.dzi$/i, "_files/");
+  const tilesUrl = configuredFolder
+    ? new URL(configuredFolder, descriptorUrl).href
+    : new URL(fallbackFolder, descriptorUrl).href;
+  return new OpenSeadragon.DziTileSource(
+    width,
+    height,
+    tileSize,
+    tileOverlap,
+    tilesUrl,
+    fileFormat,
+    [],
+  );
+}
+
 function installOpenSeadragonConsoleFilter(OpenSeadragon: typeof OpenSeadragonNS) {
   const noisyAssertions = [
     "TileSource.getTileAtPoint",
@@ -56,6 +88,15 @@ function installOpenSeadragonConsoleFilter(OpenSeadragon: typeof OpenSeadragonNS
   const consoleTarget = window.console;
   (OpenSeadragon as typeof OpenSeadragonNS & { console: Console }).console = {
     ...consoleTarget,
+    error(...data: unknown[]) {
+      const message = data.map((item) => String(item)).join(" ");
+      // Destroying and recreating the viewer in React development mode aborts
+      // its in-flight image elements. OpenSeadragon logs every cancelled tile
+      // as console.error, which Next treats as a full-screen error overlay.
+      // Actual failures are handled by the tile-load-failed event below.
+      if (/^Tile .* failed to load:/i.test(message) || message.includes("Image load aborted")) return;
+      consoleTarget.error(...data);
+    },
     assert(condition?: boolean, ...data: unknown[]) {
       if (condition) return;
       const message = data.map((item) => String(item)).join(" ");
@@ -78,13 +119,17 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
   const REGIONS = regions && regions.length > 0 ? regions : DEFAULT_SLIDE_REGIONS;
   const rawTile = tileSource || DEFAULT_SLIDE_TILE_SOURCE;
   const isDzi = /\.dzi(\?|$)/i.test(rawTile) || rawTile.includes("/dzi/");
-  const TILE_SOURCE = encodeURI(rawTile);
+  // Supabase public URLs are already percent-encoded. The HTML tile renderer
+  // can load them directly without routing thousands of requests through the
+  // application server or encoding the URL a second time.
+  const TILE_SOURCE = rawTile;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const viewerRef = React.useRef<OpenSeadragonNS.Viewer | null>(null);
   const osdRef = React.useRef<typeof OpenSeadragonNS | null>(null);
   const overlayElRef = React.useRef<HTMLDivElement | null>(null);
   const [selected, setSelected] = React.useState("");
   const [ready, setReady] = React.useState(false);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
   const [containerReady, setContainerReady] = React.useState(false);
   const activeRegion = REGIONS.find((region) => region.key === selected);
 
@@ -114,22 +159,53 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
     let onAnimation: (() => void) | null = null;
     let onOpen: (() => void) | null = null;
     let onOpenFailed: (() => void) | null = null;
+    let onTileLoadFailed: ((event: OpenSeadragonNS.TileLoadFailedEvent) => void) | null = null;
 
     setReady(false);
     setSelected("");
+    setLoadError(null);
 
     async function start() {
       const { default: OpenSeadragon } = await import("openseadragon");
       if (cancelled || !containerRef.current) return;
       installOpenSeadragonConsoleFilter(OpenSeadragon);
 
+      let resolvedTileSource: string | OpenSeadragonNS.DziTileSource | { type: "image"; url: string };
+      try {
+        resolvedTileSource = isDzi
+          ? await resolveDziSource(OpenSeadragon, TILE_SOURCE)
+          : { type: "image", url: TILE_SOURCE };
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error.message : "The slide descriptor could not be loaded.");
+        }
+        return;
+      }
+      if (cancelled || !containerRef.current) return;
+
       osdRef.current = OpenSeadragon;
       viewer = OpenSeadragon({
         element: containerRef.current,
         prefixUrl: "/openseadragon-images/",
-        tileSources: isDzi ? TILE_SOURCE : { type: "image", url: TILE_SOURCE },
+        tileSources: resolvedTileSource as unknown as OpenSeadragonNS.Options["tileSources"],
+        // OpenSeadragon 5's canvas drawer is stable for remote DZI pyramids.
+        // Do not set an image CORS mode: the viewer only displays pixels and
+        // never reads them back from canvas. This avoids browsers aborting
+        // otherwise valid public Supabase image requests.
         drawer: "canvas",
-        showNavigator: true,
+        crossOriginPolicy: false,
+        loadTilesWithAjax: false,
+        // DZI packages contain thousands of files. Keep a small asynchronous
+        // queue so the browser and Supabase are not flooded with requests;
+        // OpenSeadragon prioritizes the tiles visible in the current viewport.
+        imageLoaderLimit: 4,
+        immediateRender: true,
+        preload: false,
+        tileRetryMax: 5,
+        tileRetryDelay: 750,
+        // The navigator creates a second tile-loading workload. Keep it off for
+        // remote slides so the main viewport gets every available connection.
+        showNavigator: false,
         animationTime: 1.2,
         springStiffness: 6,
       });
@@ -139,10 +215,22 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
         if (!cancelled) setReady(true);
       };
       onOpenFailed = () => {
-        if (!cancelled) setReady(false);
+        if (!cancelled) {
+          setReady(false);
+          setLoadError("The slide descriptor could not be loaded. Upload the complete DZI folder again.");
+        }
+      };
+      onTileLoadFailed = (event) => {
+        if (!cancelled) {
+          const failed = event.tile?.getUrl()?.split("/").slice(-3).join("/");
+          setLoadError(
+            `A slide tile could not be loaded after several attempts${failed ? ` (${failed})` : ""}. Check the connection and reopen the preview.`,
+          );
+        }
       };
       viewer.addHandler("open", onOpen);
       viewer.addHandler("open-failed", onOpenFailed);
+      viewer.addHandler("tile-load-failed", onTileLoadFailed);
 
       onAnimation = () => {
         const zoom = viewer!.viewport.getZoom(true);
@@ -170,6 +258,7 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
         if (onAnimation) viewer.removeHandler("animation", onAnimation);
         if (onOpen) viewer.removeHandler("open", onOpen);
         if (onOpenFailed) viewer.removeHandler("open-failed", onOpenFailed);
+        if (onTileLoadFailed) viewer.removeHandler("tile-load-failed", onTileLoadFailed);
         viewer.destroy();
       }
       viewerRef.current = null;
@@ -336,6 +425,11 @@ export const SlideViewer = React.forwardRef<SlideViewerHandle, SlideViewerProps>
             );
           })}
         </div>
+      )}
+      {loadError && (
+        <p className="border-b border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+          {loadError}
+        </p>
       )}
       <div
         ref={containerRef}

@@ -1,1 +1,1 @@
-export { default } from "@/app/mock-tests/page";
+export { default } from "@/app/mock-tests/page-content";

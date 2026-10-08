@@ -1,1 +1,1 @@
-export { default } from "@/app/shop/bundles/page";
+export { default } from "@/app/shop/bundles/page-content";

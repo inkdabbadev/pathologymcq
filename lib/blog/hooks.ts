@@ -45,9 +45,10 @@ export function useCreateCategory() {
   });
 }
 
-export function useCategory(slug: string) {
+export function useCategory(slug: string, initialData?: import("@/lib/blog/types").Category) {
   return useQuery({
     queryKey: ["category", slug],
+    initialData,
     queryFn: () => api.getCategoryBySlug(slug),
     enabled: Boolean(slug),
   });

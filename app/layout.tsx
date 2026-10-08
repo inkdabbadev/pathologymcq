@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 
 import "./globals.css";
+import { SITE_URL, organizationGraph } from "@/lib/seo/metadata";
+import { JsonLd } from "@/components/seo/json-ld";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { EditProvider } from "@/lib/edit/edit-context";
 import { SiteChrome } from "@/components/layout/site-chrome";
@@ -19,6 +21,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Pathology MCQ | FRCPath, NEET-SS, MD/DNB Exam Prep",
     template: "%s | Pathology MCQ",
@@ -38,6 +41,7 @@ export default function RootLayout({
       className={`${poppins.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-canvas text-ink-900">
+        <JsonLd data={organizationGraph} />
         <QueryProvider>
           <EditProvider>
             <SiteChrome>{children}</SiteChrome>

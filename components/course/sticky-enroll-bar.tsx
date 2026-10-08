@@ -39,7 +39,7 @@ export function StickyEnrollBar({ course }: { course: Course }) {
               {course.externalUrl ? (
                 <a href={course.externalUrl} target="_blank" rel="noopener noreferrer">Enroll now</a>
               ) : (
-                <Link href="/contact">Enroll now</Link>
+                <Link href="/contact#whatsapp" scroll={false}>Enroll now</Link>
               )}
             </Button>
           </div>

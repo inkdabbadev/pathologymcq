@@ -10,7 +10,7 @@ export function FeaturedCourses({ fallback }: { fallback: Course[] }) {
   return (
     <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {(data ?? fallback).slice(0, 3).map((course) => (
-        <Reveal key={course.id}><CourseCard course={course} /></Reveal>
+        <Reveal key={course.id} className="h-full"><CourseCard course={course} /></Reveal>
       ))}
     </RevealGroup>
   );

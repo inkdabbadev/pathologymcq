@@ -18,7 +18,7 @@ export function BlogPostCard({
   return (
     <Link
       href={blogHref(post, hrefBase)}
-      className="group flex flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
+      className="group flex h-full flex-col overflow-hidden rounded-card border border-iris-300/30 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glow"
     >
       <div className="relative aspect-[3/2] overflow-hidden bg-mist-100">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -33,20 +33,20 @@ export function BlogPostCard({
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        {post.category && (
+      <div className="flex min-h-44 flex-1 flex-col gap-3 p-5">
+        <div className="min-h-6">
+          {post.category && (
           <Badge variant="default" className="w-fit normal-case">
             {post.category.name}
           </Badge>
-        )}
-        <h3 className="font-display text-base font-semibold leading-snug text-plum-900">
+          )}
+        </div>
+        <h3 className="line-clamp-2 min-h-11 font-display text-base font-semibold leading-snug text-plum-900">
           {post.title}
         </h3>
-        {post.excerpt && (
-          <p className="line-clamp-2 text-sm leading-relaxed text-slate-700">
-            {post.excerpt}
-          </p>
-        )}
+        <p className="line-clamp-2 min-h-11 text-sm leading-relaxed text-slate-700">
+          {post.excerpt || "Read the full pathology article."}
+        </p>
       </div>
     </Link>
   );

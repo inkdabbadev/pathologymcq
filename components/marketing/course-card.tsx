@@ -20,24 +20,26 @@ export function CourseCard({ course, hrefBase = "/courses" }: { course: Course; 
           fill
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
         />
-        <Badge variant="solid" className="absolute left-4 top-4">
+        <Badge variant="solid" className="absolute left-4 top-4 max-w-[calc(100%-2rem)] truncate">
           {course.examTargets.join(" / ")}
         </Badge>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <Badge variant="default" className="w-fit normal-case">
-          {course.subspecialty}
-        </Badge>
+      <div className="flex min-h-52 flex-1 flex-col gap-3 p-5">
+        <div className="min-h-6">
+          <Badge variant="default" className="max-w-full truncate normal-case">
+            {course.subspecialty}
+          </Badge>
+        </div>
 
-        <h3 className="font-display text-lg font-semibold leading-snug text-plum-900">
+        <h3 className="line-clamp-2 min-h-12 font-display text-lg font-semibold leading-snug text-plum-900">
           {course.title}
         </h3>
 
-        {course.faculty.name && <div className="flex items-center gap-2 text-sm text-slate-700">
-          <Avatar name={course.faculty.name} size={28} />
-          <span>{course.faculty.name}</span>
-        </div>}
+        <div className={`flex min-h-7 items-center gap-2 text-sm text-slate-700 ${course.faculty.name ? "" : "invisible"}`}>
+          <Avatar name={course.faculty.name || "Faculty"} size={28} />
+          <span className="truncate">{course.faculty.name || "Faculty"}</span>
+        </div>
 
         <div className="mt-auto flex items-center justify-end pt-2">
           <span className="font-display text-lg font-bold text-plum-900">

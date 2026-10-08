@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/seo-export/
 
 # next.js
 /.next/
@@ -22,6 +23,7 @@
 
 # misc
 .DS_Store
+__pycache__/
 *.pem
 
 # debug

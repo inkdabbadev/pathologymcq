@@ -1,0 +1,21 @@
+{
+  "/": {"title":"Pathology MCQ | FRCPath, NEET-SS, MD/DNB Exam Prep","description":"Image-rich pathology MCQ practice, subspecialty courses, and mock tests for FRCPath, NEET-SS, INI-SS, MD/DNB and APCP trainees.","sources":["/"]},
+  "/about": {"title":"About us","description":"Meet the pathologists and faculty behind Pathology MCQ.","sources":["/about","/about-us"]},
+  "/contact": {"title":"Contact us","description":"Contact Pathology MCQ for course enquiries and learning support.","sources":["/contact-us"]},
+  "/courses": {"title":"Pathology courses","description":"Explore structured pathology exam preparation courses for FRCPath, NEET-SS, INI-SS and MD/DNB.","sources":["/our-courses","/courses-2","/our-courses-notes-e-books"]},
+  "/blog": {"title":"Pathology articles","description":"Read pathology articles, revision notes and image-based educational discussions.","sources":["/blog","/blogs","/blog-pathology-mcq"]},
+  "/practice": {"title":"Practice pathology MCQs","description":"Test your pathology knowledge with topic-based multiple-choice questions and explanations.","sources":[]},
+  "/mock-tests": {"title":"Pathology mock tests","description":"Explore pathology mock tests for postgraduate and subspecialty examinations.","sources":["/mock-tests"]},
+  "/shop": {"title":"Pathology books and study resources","description":"Browse pathology courses, printed books, notes and study bundles.","sources":["/store"]},
+  "/shop/hard-copy-books": {"title":"Pathology hard-copy books","description":"Explore printed pathology books and exam revision notes.","sources":[]},
+  "/shop/bundles": {"title":"Pathology study bundles","description":"Browse collections of pathology learning and exam preparation resources.","sources":["/best-value-collections"]},
+  "/faq": {"title":"Frequently asked questions","description":"Answers to common questions about Pathology MCQ courses, resources and support.","sources":["/faq"]},
+  "/pricing": {"title":"Plans and pricing","description":"Explore Pathology MCQ learning plans and course options.","sources":[]},
+  "/support": {"title":"Learning support","description":"Get help with Pathology MCQ resources and access.","sources":[]},
+  "/privacy-policy": {"title":"Privacy policy","description":"How Pathology MCQ collects, uses and protects your information.","sources":["/privacy-policy"]},
+  "/terms-and-conditions": {"title":"Terms and conditions","description":"Terms and conditions for using Pathology MCQ.","sources":["/terms-and-conditions"]},
+  "/shipping-policy": {"title":"Shipping policy","description":"Shipping and delivery information for Pathology MCQ printed resources.","sources":["/shipping-and-delivery-policy","/shipping-and-delivery"]},
+  "/cancellation-refund-policy": {"title":"Cancellation and refund policy","description":"Read the cancellation and refund policy for Pathology MCQ purchases.","sources":["/cancellation-and-refund-policy"]},
+  "/delete-account": {"title":"Delete your account","description":"How to request deletion of your Pathology MCQ account.","sources":["/delete-account"]},
+  "/disclaimer": {"title":"Disclaimer","description":"Educational use and website disclaimer for Pathology MCQ.","sources":["/disclaimer"]}
+}

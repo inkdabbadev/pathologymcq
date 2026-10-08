@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Check, X } from "lucide-react";
+import { Check, Microscope, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -21,10 +21,21 @@ export interface SamplePreviewProps {
  * representative preview embedded inline on the homepage and course pages.
  */
 export function SamplePreview({ imageUrl, question, options, explanation }: SamplePreviewProps) {
+  const resolvedImageUrl = imageUrl.trim();
+
   return (
     <div className="grid grid-cols-1 overflow-hidden rounded-hero border border-iris-300/30 bg-white shadow-lifted lg:grid-cols-2">
-      <div className="relative aspect-[4/3] lg:aspect-auto">
-        <Image src={imageUrl} alt="" fill className="object-cover" />
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-mist-100 via-iris-300/35 to-cyto-100 lg:aspect-auto">
+        {resolvedImageUrl ? (
+          <Image src={resolvedImageUrl} alt="" fill className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center text-plum-900/70">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/70 shadow-soft">
+              <Microscope className="h-8 w-8 text-royal-500" />
+            </div>
+            <p className="font-display text-sm font-semibold">Image-based question preview</p>
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-4 p-6 sm:p-8">
         <p className="font-display text-lg font-semibold text-plum-900">{question}</p>

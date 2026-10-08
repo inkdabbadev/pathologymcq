@@ -91,7 +91,7 @@ export default async function Home() {
 
           <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => (
-              <Reveal key={course.id}>
+              <Reveal key={course.id} className="h-full">
                 <CourseCard course={course} />
               </Reveal>
             ))}
@@ -117,7 +117,7 @@ export default async function Home() {
         </Container>
       </Section>
 
-      <Section>
+      <Section className="py-10 md:py-14">
         <CtaBand />
       </Section>
     </>

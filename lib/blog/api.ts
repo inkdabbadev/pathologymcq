@@ -207,33 +207,70 @@ export async function uploadDziPackage(
   let done = 0;
 
   async function send(batch: { file: File; rel: string }[]): Promise<string | null> {
-    const form = new FormData();
-    form.append("mode", "dzi-batch");
-    form.append("packageId", packageId);
-    form.append("tileFolder", tileFolder!);
-    for (const b of batch) {
-      form.append("files", b.file);
-      form.append("paths", b.rel);
+    let lastError: Error | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const form = new FormData();
+      form.append("mode", "dzi-batch");
+      form.append("packageId", packageId);
+      form.append("tileFolder", tileFolder!);
+      for (const b of batch) {
+        form.append("files", b.file);
+        form.append("paths", b.rel);
+      }
+      try {
+        const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+        const { url, uploaded } = await apiJson<{ url: string | null; uploaded: number }>(res);
+        if (uploaded !== batch.length) {
+          throw new Error(`Server stored ${uploaded} of ${batch.length} files in this batch`);
+        }
+        done += batch.length;
+        onProgress?.(done, total);
+        return url;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error("Upload batch failed");
+        if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 750));
+      }
     }
-    const res = await fetch("/api/admin/upload", { method: "POST", body: form });
-    const { url } = await apiJson<{ url: string | null }>(res);
-    done += batch.length;
-    onProgress?.(done, total);
-    return url;
+    throw lastError ?? new Error("Upload batch failed after three attempts");
   }
 
-  const url = await send([{ file: dzi.file, rel: dziName }]);
-  if (!url) throw new Error("Upload did not return a .dzi URL.");
-
-  const BATCH = 60;
-  const CONCURRENCY = 4;
+  // Keep every request below Cloudflare's subrequest ceiling. Upload the
+  // descriptor last so an interrupted package never appears as a usable slide
+  // in history while most of its tiles are still missing.
+  const BATCH = 20;
+  const CONCURRENCY = 3;
   const batches: { file: File; rel: string }[][] = [];
   for (let i = 0; i < tiles.length; i += BATCH) batches.push(tiles.slice(i, i + BATCH));
   let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(CONCURRENCY, batches.length) }, async () => {
-      while (next < batches.length) await send(batches[next++]);
-    })
-  );
-  return url;
+  try {
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, batches.length) }, async () => {
+        while (next < batches.length) await send(batches[next++]);
+      })
+    );
+    const url = await send([{ file: dzi.file, rel: dziName }]);
+    if (!url || done !== total) {
+      throw new Error(`Upload is incomplete (${done} of ${total} files).`);
+    }
+    return url;
+  } catch (error) {
+    // Do not leave an incomplete pyramid in history. Best-effort cleanup uses
+    // the same batched deletion endpoint as the admin delete button.
+    try {
+      let deleted = false;
+      while (!deleted) {
+        const response = await fetch("/api/admin/dzi", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: packageId }),
+        });
+        const result = await apiJson<{ done: boolean }>(response);
+        deleted = result.done;
+      }
+    } catch {
+      // Preserve the original upload error; an incomplete entry remains
+      // visible in history so the administrator can delete it manually.
+    }
+    throw error;
+  }
 }

@@ -37,7 +37,7 @@ export function AdminBar() {
           )}
         >
           <LayoutDashboard className="h-3.5 w-3.5" />
-          Admin panel
+          Go to Admin Panel
         </Link>
 
         <Link

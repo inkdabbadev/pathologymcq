@@ -15,7 +15,7 @@ import { ClientSlideViewer } from "@/components/marketing/client-slide-viewer";
 import { useEdit } from "@/lib/edit/edit-context";
 import { useSiteSettings, useUpdateSiteSettings } from "@/lib/catalog/hooks";
 
-export function HomeSlideSection() {
+export function HomeSlideSection({ tileSource = DEFAULT_SLIDE_TILE_SOURCE }: { tileSource?: string }) {
   const s = useSiteSettings();
   const slide = s.homeSlide;
   const { editMode } = useEdit();
@@ -55,7 +55,7 @@ export function HomeSlideSection() {
             ref={viewerRef}
             title={slide.title}
             caption={slide.caption}
-            tileSource={DEFAULT_SLIDE_TILE_SOURCE}
+            tileSource={tileSource}
             regions={slide.regions}
           />
         </Reveal>
@@ -64,7 +64,7 @@ export function HomeSlideSection() {
           <div className="mx-auto mt-6 max-w-3xl rounded-card border border-dashed border-royal-500/50 bg-mist-100/60 p-4">
             <p className="text-sm font-semibold text-plum-900">Slide admin</p>
             <p className="mt-1 text-xs text-slate-700">
-              The homepage uses the bundled public DZI slide. Pan and zoom the viewer above before adding finding labels.
+              The homepage uses the latest completed DZI upload. Pan and zoom the viewer above before adding finding labels.
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
