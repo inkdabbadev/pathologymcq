@@ -131,8 +131,11 @@ export default function FaqPage() {
             Frequently asked questions
           </h1>
           <p className="mt-4 text-slate-700">{settings.faqSubtitle}</p>
-          <div className="mt-4 flex justify-center">
-            <WhatsAppButton message="Hi! I have a question about Pathology MCQ." />
+          <div className="mt-6 flex justify-center">
+            <WhatsAppButton
+              message="Hi! I have a question about Pathology MCQ."
+              className="h-12 px-7 sm:px-8"
+            />
           </div>
         </div>
 

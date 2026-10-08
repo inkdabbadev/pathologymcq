@@ -4,7 +4,6 @@ import { Check } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 
 const ACCESS_FEATURES = [
@@ -42,8 +41,7 @@ export default function PricingPage() {
     <>
       <div className="bg-ambient relative -mt-[var(--nav-offset)] overflow-hidden pt-[calc(var(--nav-offset)+4rem)] pb-16">
         <Container className="max-w-3xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wide text-royal-500">Pricing</p>
-          <h1 className="mt-2 font-display text-4xl font-bold text-plum-900 sm:text-5xl">
+          <h1 className="font-display text-4xl font-bold text-plum-900 sm:text-5xl">
             Choose your access
           </h1>
           <p className="mt-6 text-balance text-lg leading-relaxed text-slate-700">
@@ -57,7 +55,9 @@ export default function PricingPage() {
       <Section>
         <Container className="max-w-2xl">
           <div className="rounded-card border border-iris-300/30 bg-white p-8 shadow-soft">
-            <Badge variant="cyto">Flagship · NEET-SS · DM Oncopathology</Badge>
+            <p className="text-sm font-semibold text-royal-500">
+              Flagship · NEET-SS · DM Oncopathology
+            </p>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="font-display text-4xl font-bold text-plum-900">₹6k–10k</span>
               <span className="text-slate-700">/ 3 · 6 · 12 months</span>
@@ -75,7 +75,7 @@ export default function PricingPage() {
               ))}
             </ul>
             <Button asChild size="lg" className="mt-8 w-full">
-              <Link href="/shop/neet-ss-dm-oncopathology-course">Enrol now</Link>
+              <Link href="/courses/neet-ss-dm-oncopathology-course">Enrol now</Link>
             </Button>
           </div>
           <p className="mt-4 text-center text-sm text-slate-700">

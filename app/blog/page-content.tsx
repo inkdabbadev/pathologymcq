@@ -34,10 +34,7 @@ export default function BlogIndexPage() {
   return (
     <Section>
       <Container>
-        <p className="text-xs font-semibold uppercase tracking-wider text-royal-500">
-          Insights
-        </p>
-        <h1 className="mt-1 font-display text-3xl font-bold text-plum-900 md:text-4xl">
+        <h1 className="font-display text-3xl font-bold text-plum-900 md:text-4xl">
           Pathology MCQ Blog
         </h1>
         <p className="mt-2 max-w-2xl text-slate-700">

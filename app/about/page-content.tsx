@@ -197,7 +197,11 @@ export default function AboutPage() {
                     </div>
                   ))}
                 </div>
-                <ul className="mt-8 flex flex-col gap-2 border-t border-iris-300/40 pt-6">
+                <div className="mt-8 border-t border-iris-300/40 pt-6">
+                  <h3 className="font-display text-lg font-semibold text-plum-900">
+                    What sets Pathology MCQ apart
+                  </h3>
+                  <ul className="mt-4 flex flex-col gap-2">
                   {[
                     "Built by practising pathologists — every course, MCQ, and note authored and reviewed by consultants",
                     "WHO-aligned content with continuous classification updates and standard textbook references",
@@ -209,20 +213,26 @@ export default function AboutPage() {
                       <span>{li}</span>
                     </li>
                   ))}
-                </ul>
+                  </ul>
+                </div>
               </div>
 
               {/* Contact */}
-              <div className="flex items-start gap-3 text-slate-700">
-                <MapPin className="mt-1 h-5 w-5 shrink-0 text-rose-700" />
-                <div>
-                  {settings.aboutAddress.split("\n").map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
-                  <p className="mt-2">
-                    {settings.aboutPhone} &middot;{" "}
-                    <a href={`mailto:${settings.aboutEmail}`} className="font-semibold text-rose-700">{settings.aboutEmail}</a>
-                  </p>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-plum-900 sm:text-3xl">
+                  Contact Pathology MCQ
+                </h2>
+                <div className="mt-5 flex items-start gap-3 text-slate-700">
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-rose-700" />
+                  <div>
+                    {settings.aboutAddress.split("\n").map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))}
+                    <p className="mt-2">
+                      {settings.aboutPhone} &middot;{" "}
+                      <a href={`mailto:${settings.aboutEmail}`} className="font-semibold text-rose-700">{settings.aboutEmail}</a>
+                    </p>
+                  </div>
                 </div>
               </div>
 

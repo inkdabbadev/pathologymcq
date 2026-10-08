@@ -1,24 +1,16 @@
 import Link from "next/link";
-import { ArrowRight, Microscope, ShieldCheck } from "lucide-react";
+import { ArrowRight, Microscope } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
 
 export function Hero() {
   return (
     <div className="bg-ambient relative -mt-[var(--nav-offset)] overflow-hidden pt-[calc(var(--nav-offset)+4rem)] pb-24 md:pt-[calc(var(--nav-offset)+6rem)]">
       <Container className="relative flex flex-col items-center text-center">
-        <Reveal>
-          <Badge variant="cyto" className="gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Written by practising pathologists &middot; Latest updates &amp; guidelines
-          </Badge>
-        </Reveal>
-
         <Reveal delay={0.06}>
-          <h1 className="mt-6 max-w-4xl text-balance font-display text-4xl font-bold leading-[1.05] text-plum-900 sm:text-5xl md:text-6xl">
+          <h1 className="max-w-4xl text-balance font-display text-4xl font-bold leading-[1.05] text-plum-900 sm:text-5xl md:text-6xl">
             We give you a plan.
           </h1>
         </Reveal>

@@ -6,7 +6,6 @@ import {
   GraduationCap,
   Mail,
   MapPin,
-  MessageCircle,
   ShieldCheck,
 } from "lucide-react";
 
@@ -45,11 +44,7 @@ export default function ContactPage() {
         <div className="pointer-events-none absolute -top-28 right-[-7rem] h-80 w-80 rounded-full bg-iris-300/25 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-9rem] left-[-6rem] h-72 w-72 rounded-full bg-rose-300/20 blur-3xl" />
         <Container className="relative max-w-4xl text-center">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-iris-300/50 bg-white/75 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-royal-600 shadow-sm backdrop-blur">
-            <MessageCircle className="h-4 w-4" />
-            We are here to help
-          </div>
-          <h1 className="mt-6 font-display text-4xl font-bold tracking-tight text-plum-900 sm:text-6xl">
+          <h1 className="font-display text-4xl font-bold tracking-tight text-plum-900 sm:text-6xl">
             Let&apos;s talk pathology
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-balance text-base leading-7 text-slate-700 sm:text-lg">
