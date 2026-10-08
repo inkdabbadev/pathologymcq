@@ -1,7 +1,6 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
-
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { cn } from "@/lib/utils";
 import { useSiteSettings } from "@/lib/catalog/hooks";
 import { normalizeWhatsAppNumber } from "@/lib/site/whatsapp";
@@ -35,12 +34,12 @@ export function WhatsAppButton({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-iris-300/70 bg-white px-5 text-sm font-semibold text-plum-900 transition-all duration-200 hover:-translate-y-0.5 hover:border-royal-500 hover:shadow-soft",
+        "inline-flex h-11 items-center justify-center gap-2.5 rounded-full border border-iris-300/70 bg-white px-6 text-sm font-semibold leading-none text-plum-900 transition-all duration-200 hover:-translate-y-0.5 hover:border-royal-500 hover:shadow-soft",
         className
       )}
     >
-      <MessageCircle className="h-4 w-4 text-rose-700" />
-      {label}
+      <WhatsAppIcon className="h-[18px] w-[18px] shrink-0 text-[#25D366]" />
+      <span className="block leading-none">{label}</span>
     </a>
   );
 }
